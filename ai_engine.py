@@ -7,20 +7,22 @@ import json
 import os
 from typing import Any
 
-from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Streamlit Cloud: read secrets into os.environ if available
+# Streamlit Cloud: read secrets into os.environ if available *before* importing openai
+# so that the OpenAI client picks up LLM_API_KEY/LLM_BASE_URL automatically.
 try:
     import streamlit as st
-    if hasattr(st, "secrets"):
+    if hasattr(st, "secrets") and st.secrets:
         for key in ("LLM_API_KEY", "LLM_BASE_URL", "LLM_MODEL"):
             if key in st.secrets and key not in os.environ:
                 os.environ[key] = st.secrets[key]
-except ImportError:
+except (ImportError, AttributeError, Exception):
     pass
+
+from openai import OpenAI
 
 # ---------------------------------------------------------------------------
 # Pricing — per-token costs in CNY (used for cost estimates in the UI).
