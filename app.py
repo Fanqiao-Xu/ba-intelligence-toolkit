@@ -446,9 +446,52 @@ hr, .stMarkdown hr {
     margin: 2rem 0;
 }
 
-/* ── Radio (view selector) — hidden, replaced by custom nav ────── */
-div[data-testid="stRadio"] {
-    display: none;
+/* ── Radio (view selector) — styled as top nav ─────────────────── */
+/* Hide the actual radio circles */
+div[data-testid="stRadio"] input[type="radio"] {
+    display: none !important;
+}
+
+/* Radio group laid out horizontally */
+div[data-testid="stRadio"] > div {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 2.5rem !important;
+    padding: 0 0 1.2rem 0 !important;
+    border-bottom: 1px solid var(--border) !important;
+    margin-bottom: 2rem !important;
+    background-color: transparent !important;
+}
+
+/* Each label is a nav item */
+div[data-testid="stRadio"] label {
+    font-family: var(--font-sans) !important;
+    font-size: 0.72rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.16em !important;
+    color: var(--text-caption) !important;
+    font-weight: 500 !important;
+    padding-bottom: 0.5rem !important;
+    border-bottom: 2px solid transparent !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    transition: color 0.2s ease, border-color 0.2s ease !important;
+}
+div[data-testid="stRadio"] label:hover {
+    color: var(--text-primary) !important;
+}
+
+/* Selected item */
+div[data-testid="stRadio"] label[data-baseweb="radio"] > div:last-child {
+    color: var(--text-primary) !important;
+    border-bottom: 2px solid var(--accent) !important;
+}
+
+/* Streamlit sometimes wraps the checked label differently; target checked state */
+div[data-testid="stRadio"] input[type="radio"]:checked + div label,
+div[data-testid="stRadio"] input[type="radio"]:checked + label {
+    color: var(--text-primary) !important;
+    border-bottom: 2px solid var(--accent) !important;
 }
 
 /* ── Plotly chart container ─────────────────────────────────────── */
@@ -900,7 +943,7 @@ nav_labels = [
     "Export",
 ]
 
-# Hidden radio for state management (CSS hides it)
+# Radio serves as the functional top navigation; CSS styles the labels as nav items
 view = st.radio(
     "Select View",
     options=range(len(nav_labels)),
@@ -909,14 +952,6 @@ view = st.radio(
     label_visibility="collapsed",
 )
 st.session_state.current_view = view
-
-# Render visible top nav
-nav_html = '<div class="top-nav">'
-for i, label in enumerate(nav_labels):
-    active = " active" if i == view else ""
-    nav_html += f'<span class="top-nav-item{active}">{label}</span>'
-nav_html += '</div>'
-st.markdown(nav_html, unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------------------------
