@@ -1,0 +1,1120 @@
+# =============================================================================
+# Compliance Obligation Checklist
+# =============================================================================
+# Scenario: Individual (retail) customer, non-face-to-face (digital channel)
+#           account opening — KYC/AML compliance check
+#
+# This file is the core intellectual property of the BA Intelligence Toolkit.
+# The code loads this file and uses LLM to check each obligation against a BRD.
+# To support a different scenario, replace this file — the code stays the same.
+#
+# Sources:
+#   MLR 2017  — The Money Laundering, Terrorist Financing and Transfer of
+#               Funds (Information on the Payer) Regulations 2017
+#   JMLSG     — Joint Money Laundering Steering Group Guidance, Part I, Ch.5
+#   FCA FG17-6 — FCA Finalised Guidance: The treatment of Politically Exposed
+#               Persons for the purposes of AML
+#   FCA Consumer Duty — FCA Handbook, PRIN 2A
+#   UK DITF   — UK Digital Identity Trust Framework (DCMS, 2022)
+# =============================================================================
+
+scenario: "Individual retail customer — digital (non-face-to-face) account opening"
+applicable_regimes:
+  - "MLR 2017 (UK Money Laundering Regulations)"
+  - "FCA AML regime (SYSC 6.3)"
+  - "FCA Consumer Duty (PRIN 2A)"
+  - "UK GDPR / Data Protection Act 2018"
+
+obligations:
+
+  # =========================================================================
+  # A. Customer Identification & Verification (CDD Core)
+  # =========================================================================
+
+  - obligation_id: A1
+    category: "Customer Identification & Verification (CDD Core)"
+    trigger: >
+      The project involves opening a new account for an individual customer.
+      This trigger is ALWAYS met for any account-opening project.
+    obligation: >
+      The firm must identify the customer and verify the customer's identity
+      using information from a reliable, independent source.
+    how_to_check: >
+      1. Determine whether the BRD describes a step where the customer's full
+         legal name and at least one identity attribute (date of birth,
+         government-issued ID number) are collected.
+      2. Determine whether the BRD describes verification of that identity
+         against an independent source — i.e., a source that is not the
+         customer's own self-attestation. Acceptable forms include:
+         (a) government-issued photo ID (passport, driving licence) checked
+         against the document itself or its digital image;
+         (b) an electronic identity verification service that cross-references
+         credit bureau, electoral roll, or other independent data sources;
+         (c) a digital identity service provider certified under the UK
+         Digital Identity Trust Framework.
+      3. If the BRD only says "customer enters their details" with no
+         verification step described, the obligation is NOT satisfied.
+      4. If the BRD describes collection AND verification (even if the
+         specific provider is not yet chosen), the obligation IS satisfied.
+    consequence_if_gap: >
+      Inability to confirm the customer's real identity. The account could be
+      opened in a fictitious or stolen identity, exposing the firm to
+      identity-fraud losses and regulatory enforcement under MLR 2017 Reg 28.
+    severity: high
+    source: "MLR 2017 Reg 28(2)(a)–(b); JMLSG Part I Ch.5 para 5.3"
+    depth: standard
+
+  - obligation_id: A2
+    category: "Customer Identification & Verification (CDD Core)"
+    trigger: >
+      The project involves opening a new account for an individual customer
+      who must be traceable to a physical location.
+    obligation: >
+      The firm must obtain and verify the customer's residential address.
+    how_to_check: >
+      1. Determine whether the BRD describes collection of the customer's
+         residential address (not just a mailing address or IP address).
+      2. Determine whether the BRD describes a verification mechanism for
+         that address. Acceptable mechanisms include:
+         (a) cross-referencing against a credit bureau or electoral roll;
+         (b) requesting a utility bill or bank statement (and describing
+         how it is validated, e.g. date recency, name match);
+         (c) a digital identity service that includes address verification.
+      3. If the BRD collects address but only uses it for card delivery
+         (not for CDD verification), the obligation is NOT satisfied.
+    consequence_if_gap: >
+      The firm cannot verify where the customer actually resides, undermining
+      risk assessment (geographic risk factor) and making it harder to detect
+      synthetic identities that use fabricated addresses.
+    severity: medium
+    source: "MLR 2017 Reg 28(2)(a); JMLSG Part I Ch.5 para 5.3.3"
+    depth: standard
+
+  - obligation_id: A3
+    category: "Customer Identification & Verification (CDD Core)"
+    trigger: >
+      The project involves opening a new account for an individual customer.
+      Date of birth is a standard CDD data point for identity verification.
+    obligation: >
+      The firm must obtain the customer's date of birth and use it as part
+      of identity verification.
+    how_to_check: >
+      1. Determine whether the BRD describes collection of the customer's
+         date of birth.
+      2. Determine whether the date of birth is used in the verification
+         process — e.g., cross-referenced against credit bureau data or
+         checked against the date of birth on the presented ID document.
+      3. If date of birth is collected but only stored (not used in
+         verification), this is a partial gap.
+    consequence_if_gap: >
+      Without date of birth, identity verification is weaker and it is easier
+      for a fraudster to use a real name with fabricated other details.
+    severity: low
+    source: "JMLSG Part I Ch.5 para 5.3.1"
+    depth: standard
+
+  - obligation_id: A4
+    category: "Customer Identification & Verification (CDD Core)"
+    trigger: >
+      The project uses a digital (non-face-to-face) channel for account
+      opening AND relies on a digital identity service provider (e.g. Onfido,
+      Experian, Yoti) rather than physical document inspection by staff.
+    obligation: >
+      If a digital identity service is used, that service must meet the
+      standard of a "reliable, independent source" — i.e., the electronic
+      identification process must be anti-fraud and anti-abuse, and provide
+      a level of assurance sufficient to manage ML/TF risk.
+    how_to_check: >
+      1. Determine whether the BRD names or describes a digital identity
+         verification provider or method.
+      2. If yes, determine whether the BRD describes any requirement for
+         that provider to meet a recognised standard. Acceptable indicators:
+         (a) reference to the UK Digital Identity Trust Framework;
+         (b) reference to ISO/IEC 27001 or similar certification;
+         (c) description of liveness detection, biometric matching, or
+         document authenticity checks as part of the verification process;
+         (d) reference to the provider being certified or audited.
+      3. If the BRD simply says "we use [Provider] API" without describing
+         any assurance standard, the obligation is a gap — the firm is
+         relying on a third party without specifying the required quality.
+    consequence_if_gap: >
+      A digital identity provider that does not meet reliability standards
+      could be spoofed (e.g., a photo of a photo), leading to accounts
+      opened in stolen identities. The firm would have no contractual or
+      standards basis to demonstrate due diligence to the regulator.
+    severity: high
+    source: "MLR 2017 Reg 28(18)–(19); UK Digital Identity Trust Framework"
+    depth: standard
+
+  - obligation_id: A5
+    category: "Customer Identification & Verification (CDD Core)"
+    trigger: >
+      The project involves opening a new account. CDD verification can fail
+      (document unreadable, data mismatch, provider down).
+    obligation: >
+      If CDD cannot be satisfactorily completed, the firm must not establish
+      the business relationship (must not open the account) and must consider
+      filing a Suspicious Activity Report.
+    how_to_check: >
+      1. Determine whether the BRD describes what happens when identity
+         verification fails or cannot be completed.
+      2. Look for a "failure" or "rejection" or "escalation" branch in the
+         process flow. Specifically check:
+         (a) Is there a process step that says the account is NOT opened
+         if verification fails?
+         (b) Is there a step that considers whether to file a SAR?
+      3. If the BRD only describes the happy path (verification succeeds →
+         account opened) with no failure branch, the obligation is a gap.
+    consequence_if_gap: >
+      Accounts could be opened without completed CDD, directly violating
+      MLR 2017 Reg 31. The firm would have no process to prevent onboarding
+      of individuals whose identity cannot be verified.
+    severity: high
+    source: "MLR 2017 Reg 31(1)–(2); JMLSG Part I Ch.5 para 5.4"
+    depth: deep
+
+  - obligation_id: A6
+    category: "Customer Identification & Verification (CDD Core)"
+    trigger: >
+      The project involves establishing a new business relationship
+      (opening an account).
+    obligation: >
+      The firm must obtain information on the purpose and intended nature
+      of the business relationship.
+    how_to_check: >
+      1. Determine whether the BRD describes collecting information about
+         why the customer wants the account and what they intend to use
+         it for (e.g., type of account, expected transaction volumes,
+         expected deposit amounts, source of initial funds).
+      2. If the BRD only collects name/ID/address and opens the account
+         without any purpose/expected-activity question, the obligation
+         is a gap.
+      3. If the BRD collects this information but only for marketing
+         purposes (not for CDD risk assessment), it is a partial gap.
+    consequence_if_gap: >
+      Without understanding the expected nature of the relationship, the
+      firm cannot establish a baseline for ongoing monitoring. Unusual
+      transactions cannot be flagged because there is no "usual" baseline.
+    severity: medium
+    source: "MLR 2017 Reg 28(2)(c); JMLSG Part I Ch.5 para 5.3.4"
+    depth: standard
+
+  # =========================================================================
+  # B. Risk Assessment & Risk-Based Approach
+  # =========================================================================
+
+  - obligation_id: B1
+    category: "Risk Assessment & Risk-Based Approach"
+    trigger: >
+      The project involves opening a new account for an individual customer.
+      A risk assessment must be performed at onboarding.
+    obligation: >
+      The firm must assess the money laundering / terrorist financing risk
+      of each customer at onboarding and assign a risk rating (e.g.,
+      low / medium / high).
+    how_to_check: >
+      1. Determine whether the BRD describes a risk-scoring or
+         risk-classification step in the onboarding process.
+      2. The BRD should describe what factors feed into the risk score.
+         Common factors for individual customers include:
+         (a) customer type (resident / non-resident / student / etc.);
+         (b) product type (current account / savings / etc.);
+         (c) delivery channel (face-to-face / digital);
+         (d) geographic risk (customer address country, birth country);
+         (e) PEP / sanctions screening result.
+      3. If the BRD describes risk scoring with at least 2 factors, the
+         obligation is satisfied.
+      4. If the BRD has no risk-scoring step, the obligation is a gap.
+    consequence_if_gap: >
+      Without a risk rating, the firm cannot apply differentiated CDD
+      measures (SDD vs standard vs EDD), violating the risk-based approach
+      required by MLR 2017 Reg 18 and Reg 28(12).
+    severity: high
+    source: "MLR 2017 Reg 18(1), Reg 28(12)–(13); JMLSG Part I Ch.4"
+    depth: deep
+
+  - obligation_id: B2
+    category: "Risk Assessment & Risk-Based Approach"
+    trigger: >
+      The project involves opening a new account. The risk assessment must
+      consider multiple risk factor categories.
+    obligation: >
+      The risk assessment must consider customer risk, product/service risk,
+      and geographical risk factors.
+    how_to_check: >
+      1. Determine whether the BRD's risk-scoring methodology considers
+         factors from at least three categories:
+         (a) Customer factors (e.g., residency, PEP status, occupation);
+         (b) Product/service factors (e.g., account type, transaction limits);
+         (c) Geographical factors (e.g., customer's country of residence,
+         country of birth, high-risk third country nexus);
+         (d) Delivery channel factors (e.g., non-face-to-face).
+      2. If the risk score only considers one category (e.g., only PEP
+         status), the obligation is a partial gap.
+    consequence_if_gap: >
+      A single-dimension risk score may miss important risk combinations
+      (e.g., a non-PEP customer in a high-risk country with a non-face-to-face
+      channel). The firm's risk model would be incomplete.
+    severity: medium
+    source: "MLR 2017 Reg 33(6)(a)–(c); JMLSG Part I Ch.4 para 4.4"
+    depth: standard
+
+  - obligation_id: B3
+    category: "Risk Assessment & Risk-Based Approach"
+    trigger: >
+      The project involves a risk-scoring step that produces different risk
+      levels (low / medium / high).
+    obligation: >
+      The degree of CDD measures must be proportionate to the risk level:
+      simplified CDD for low risk, standard CDD for medium risk, and
+      enhanced CDD for high risk.
+    how_to_check: >
+      1. Determine whether the BRD describes different processing paths
+         for different risk levels.
+      2. Specifically check:
+         (a) For low-risk: is there a simplified/automated path (e.g.,
+         instant approval with fewer checks)?
+         (b) For medium-risk: is there a standard path with some manual
+         review?
+         (c) For high-risk: is there an enhanced path with EDD measures
+         (see Category C)?
+      3. If the BRD has risk scoring but treats all customers the same
+         regardless of score, the obligation is a gap.
+    consequence_if_gap: >
+      Applying the same level of CDD to all customers regardless of risk
+      violates the risk-based approach. Low-risk customers are over-burdened
+      (hurting conversion) while high-risk customers are under-scrutinised
+      (creating AML exposure).
+    severity: medium
+    source: "MLR 2017 Reg 37 (SDD), Reg 28(12)–(13), Reg 33 (EDD)"
+    depth: standard
+
+  # =========================================================================
+  # C. Enhanced Due Diligence (EDD) Triggers
+  # — Most likely to be missed by requirement documents —
+  # =========================================================================
+
+  - obligation_id: C1
+    category: "Enhanced Due Diligence (EDD) Triggers"
+    trigger: >
+      Determine whether the account-opening process described in the BRD is
+      conducted entirely through a non-face-to-face (digital) channel — i.e.,
+      there is no step where the customer meets a representative of the firm
+      in person (branch, counter) or via real-time video interaction with a
+      human staff member. If all identity verification is done by the customer
+      self-submitting documents or by an automated system, the non-face-to-face
+      trigger is ACTIVATED.
+    obligation: >
+      Because non-face-to-face onboarding is a recognised ML/TF risk factor,
+      the firm must apply additional safeguards to compensate for the higher
+      impersonation risk. These safeguards must go beyond simply accepting a
+      photo of an ID document and must include at least one of:
+      (a) an electronic identity verification process that meets the standard
+      in MLR 2017 Reg 28(19) (anti-fraud, anti-abuse, sufficient assurance);
+      (b) liveness detection (biometric selfie matching, not just a photo);
+      (c) multi-source cross-referencing (verifying identity against two or
+      more independent data sources);
+      (d) requiring the customer to complete a supplementary verification
+      step (e.g., a micro-deposit to a linked existing account).
+    how_to_check: >
+      STEP 1 — Determine whether the trigger is activated:
+        Examine the process described in the BRD. Determine whether any step
+        involves real-time human interaction between the customer and a
+        representative of the firm (e.g., branch visit, video call with
+        staff, third-party witness). If NO such step exists and all
+        verification is customer self-service or automated, the trigger
+        IS activated. If there IS a real-time human interaction step,
+        the trigger is NOT activated and this obligation may be marked
+        "not applicable" (but note that even a hybrid process retains
+        some non-face-to-face risk).
+
+      STEP 2 — If trigger is activated, determine whether the BRD describes
+      compensating safeguards:
+        (a) Does the BRD describe a biometric/liveness check (selfie
+        matching, video liveness) rather than just a photo of an ID?
+        (b) Does the BRD describe multi-source verification (identity
+        checked against more than one independent source, e.g., document
+        + credit bureau + electoral roll)?
+        (c) Does the BRD reference a digital identity service standard
+        (UK DITF, Reg 28(19))?
+        (d) Does the BRD describe any supplementary verification step
+        (micro-deposit, knowledge-based verification, etc.)?
+
+      STEP 3 — Determine status:
+        - If the trigger is NOT activated (there is real-time human
+        interaction): status = "not applicable".
+        - If the trigger IS activated AND at least one safeguard is
+        described: status = "satisfied".
+        - If the trigger IS activated AND no safeguard beyond "accept a
+        photo of an ID" is described: status = "gap".
+    consequence_if_gap: >
+      A purely digital onboarding flow that accepts a photo of an ID document
+      without liveness detection or multi-source verification is vulnerable
+      to impersonation fraud (a fraudster using a stolen ID + a photo found
+      online). This is one of the most commonly exploited weaknesses in
+      digital banking. The firm would be in breach of its risk-based AML
+      obligations for failing to mitigate a known, explicitly identified
+      risk factor (MLR 2017 Reg 33(6)(b)(iii)).
+    severity: high
+    source: "MLR 2017 Reg 33(6)(b)(iii); Reg 28(19); JMLSG Part I Ch.5 para 5.3.5"
+    depth: deep
+
+  - obligation_id: C2
+    category: "Enhanced Due Diligence (EDD) Triggers"
+    trigger: >
+      The customer is identified as a Politically Exposed Person (PEP), or a
+      family member or known close associate of a PEP. This trigger is
+      activated by the result of PEP screening (see D2).
+    obligation: >
+      EDD must be applied, which must include at least:
+      (a) senior management approval for establishing/continuing the
+      relationship;
+      (b) establishing the source of wealth and source of funds;
+      (c) enhanced ongoing monitoring of the relationship.
+    how_to_check: >
+      1. Determine whether the BRD describes PEP screening as part of
+         onboarding (see D2). If PEP screening is not described at all,
+         this obligation cannot be satisfied because the trigger cannot
+         be detected — mark as "gap" and note the dependency on D2.
+      2. If PEP screening IS described, determine whether the BRD
+         describes what happens when a customer IS a PEP:
+         (a) Is there a step for senior management approval?
+         (b) Is there a step for source of wealth/funds verification?
+         (c) Is there a step for enhanced ongoing monitoring?
+      3. If all three EDD measures are described for PEP cases: satisfied.
+         If only some: partial gap. If none: gap.
+    consequence_if_gap: >
+      PEPs present higher risk of corruption and bribery proceeds. Failing
+      to apply EDD to PEPs is a direct breach of MLR 2017 Reg 35 and FCA
+      FG17-6. The firm could unknowingly accept proceeds of corruption,
+      leading to regulatory fines and reputational damage.
+    severity: high
+    source: "MLR 2017 Reg 33(1)(d), Reg 35; FCA FG17-6"
+    depth: deep
+
+  - obligation_id: C3
+    category: "Enhanced Due Diligence (EDD) Triggers"
+    trigger: >
+      The customer is established in (resident of) a high-risk third country,
+      as identified by FATF lists (High-Risk Jurisdictions subject to a Call
+      for Action, or Jurisdictions under Increased Monitoring).
+    obligation: >
+      EDD must be applied, which must include:
+      (a) additional information on the customer and beneficial owner;
+      (b) additional information on the intended nature of the relationship;
+      (c) information on the source of funds and source of wealth;
+      (d) information on the reasons for the transactions;
+      (e) senior management approval;
+      (f) enhanced ongoing monitoring.
+    how_to_check: >
+      1. Determine whether the BRD describes how the customer's country of
+         residence is checked against FATF high-risk lists.
+      2. If country checking is described, determine whether the BRD
+         describes EDD measures (the six items above) for customers
+         from high-risk countries.
+      3. If the BRD limits onboarding to UK residents only (and this is
+         explicitly stated), the trigger may rarely activate — but the
+         BRD should still describe the process for the edge case
+         (e.g., a UK resident born in a high-risk country).
+      4. If no country-risk check is described at all: gap.
+    consequence_if_gap: >
+      Customers from high-risk jurisdictions may be onboarded with standard
+      CDD, missing the enhanced scrutiny required for higher ML/TF risk.
+      This is a direct breach of MLR 2017 Reg 33(1)(b) and Reg 33(3A).
+    severity: high
+    source: "MLR 2017 Reg 33(1)(b), Reg 33(3A)"
+    depth: standard
+
+  - obligation_id: C4
+    category: "Enhanced Due Diligence (EDD) Triggers"
+    trigger: >
+      The customer declares an unusually high initial deposit or expected
+      transaction volume during the account application that exceeds the
+      normal range for this product type. This trigger applies to
+      information provided at the point of application only, not to
+      post-onboarding transaction monitoring.
+    obligation: >
+      EDD must be applied, which must include:
+      (a) examining the background and purpose of the transaction, as far
+      as reasonably possible;
+      (b) increasing the degree and nature of monitoring of the relationship.
+    how_to_check: >
+      1. Determine whether the BRD describes a mechanism for capturing
+         the customer's expected transaction volume or initial deposit
+         amount during the application process.
+      2. Determine whether the BRD describes what happens if the declared
+         amount is unusually high — e.g., a threshold that triggers
+         additional review before the account is opened.
+      3. If the BRD captures expected activity but has no threshold or
+         review mechanism for unusual declarations: gap.
+      4. If the BRD does not capture expected activity at all: gap.
+      5. If the BRD captures expected activity AND describes a review
+         mechanism for unusual amounts: satisfied.
+      Note: This obligation covers only application-stage declarations.
+      Post-onboarding transaction monitoring is out of scope for this BRD.
+    consequence_if_gap: >
+      Without capturing expected activity levels at the application stage,
+      the firm cannot detect anomalous declarations (e.g., an unusually high
+      initial deposit or expected transaction volume that is inconsistent
+      with the product type or customer profile). Such anomalies may
+      indicate layering or integration of illicit funds, and without an
+      application-stage review mechanism they will pass through undetected.
+      This is a breach of MLR 2017 Reg 33(1)(f) and Reg 33(4).
+    severity: high
+    source: "MLR 2017 Reg 33(1)(f), Reg 33(4)"
+    depth: deep
+
+  - obligation_id: C5
+    category: "Enhanced Due Diligence (EDD) Triggers"
+    trigger: >
+      The firm discovers that a customer has provided false or stolen
+      identification documentation or information, and proposes to continue
+      dealing with that customer (rather than immediately terminating).
+    obligation: >
+      EDD must be applied if the firm continues the relationship after
+      discovering false/stolen ID. In practice, most firms would terminate
+      the relationship and file a SAR.
+    how_to_check: >
+      1. Determine whether the BRD describes what happens when false or
+         stolen identification is detected during onboarding.
+      2. Specifically check:
+         (a) Is there a process to flag and escalate false ID detection?
+         (b) Is there a decision point: terminate vs. continue with EDD?
+         (c) If continue: are EDD measures described?
+         (d) Is filing a SAR considered?
+      3. If the BRD has no process for handling false/stolen ID: gap.
+    consequence_if_gap: >
+      Without a defined process, staff may handle false ID cases
+      inconsistently — some may continue onboarding, some may reject,
+      with no EDD or SAR filing. This creates both AML risk and
+      operational risk.
+    severity: medium
+    source: "MLR 2017 Reg 33(1)(e)"
+    depth: standard
+
+  - obligation_id: C6
+    category: "Enhanced Due Diligence (EDD) Triggers"
+    trigger: >
+      Any of the EDD triggers (C1–C5) are activated, OR the firm's risk
+      assessment rates the customer as high risk.
+    obligation: >
+      EDD measures must include:
+      (a) senior management approval for establishing or continuing the
+      business relationship;
+      (b) verifying the source of wealth and source of funds;
+      (c) enhanced ongoing monitoring of the relationship.
+    how_to_check: >
+      1. Determine whether the BRD describes a general "EDD package" that
+         is triggered when any EDD condition is met (C1–C5 or high risk).
+      2. Check whether the EDD package includes all three mandatory
+         elements: (a) senior management approval, (b) source of wealth/
+         funds verification, (c) enhanced ongoing monitoring.
+      3. If only some elements are described: partial gap.
+      4. If none are described (beyond individual trigger-specific measures):
+         gap — the firm needs a general EDD framework, not just trigger-
+         specific responses.
+    consequence_if_gap: >
+      EDD triggers without the full EDD package means the firm identifies
+      high risk but does not apply the required enhanced measures. This
+      defeats the purpose of risk-based CDD and is a direct breach of
+      MLR 2017 Reg 33.
+    severity: high
+    source: "MLR 2017 Reg 33(3A)(c)–(f), Reg 33(5)"
+    depth: deep
+
+  # =========================================================================
+  # D. PEP & Sanctions Screening
+  # =========================================================================
+
+  - obligation_id: D1
+    category: "PEP & Sanctions Screening"
+    trigger: >
+      The project involves opening a new account for an individual customer.
+      Sanctions screening must be performed at onboarding.
+    obligation: >
+      The firm must screen the customer against relevant sanctions lists
+      at the time of onboarding. Relevant lists include:
+      (a) OFSI (UK Office of Financial Sanctions Implementation) Consolidated
+      List;
+      (b) UN Security Council Consolidated List;
+      (c) EU Financial Sanctions List (retained in UK law post-Brexit).
+    how_to_check: >
+      1. Determine whether the BRD describes a sanctions screening step
+         in the onboarding process.
+      2. Check whether the BRD specifies which sanctions lists are screened
+         against, or at least mentions "sanctions screening" as a step.
+      3. If the BRD mentions a "KYC check" that includes PEPs and sanctions
+         but does not specify the lists, this is "unclear" rather than
+         fully satisfied.
+      4. If no sanctions screening step is described at all: gap.
+    consequence_if_gap: >
+      Opening an account for a sanctioned individual or entity is a criminal
+      offence under the Sanctions and Anti-Money Laundering Act 2018.
+      The firm could face unlimited fines and criminal prosecution.
+    severity: high
+    source: "SAMLA 2018; OFSI guidance; JMLSG Part I Ch.6"
+    depth: deep
+
+  - obligation_id: D2
+    category: "PEP & Sanctions Screening"
+    trigger: >
+      The project involves opening a new account for an individual customer.
+      PEP screening must be performed at onboarding.
+    obligation: >
+      The firm must screen the customer to determine whether they are a PEP,
+      a family member of a PEP, or a known close associate of a PEP.
+    how_to_check: >
+      1. Determine whether the BRD describes a PEP screening step in the
+         onboarding process.
+      2. The BRD should describe screening that covers:
+         (a) the customer directly (are they a PEP?);
+         (b) family members of PEPs (spouse, children, parents);
+         (c) known close associates of PEPs.
+      3. If the BRD mentions "PEP check" or "PEP screening" as a step:
+         satisfied (the methodology detail may be in operational docs).
+      4. If no PEP screening is mentioned at all: gap.
+    consequence_if_gap: >
+      Without PEP screening, the firm cannot identify customers who require
+      EDD under Reg 35. PEPs could be onboarded with standard CDD, missing
+      the enhanced scrutiny required for corruption risk.
+    severity: high
+    source: "MLR 2017 Reg 35; FCA FG17-6; JMLSG Part I Ch.5 para 5.5"
+    depth: deep
+
+  - obligation_id: D3
+    category: "PEP & Sanctions Screening"
+    trigger: >
+      A sanctions or PEP screening returns a positive match (or a
+      potential match requiring investigation).
+    obligation: >
+      The BRD must describe a clear escalation and decision process for
+      handling positive sanctions/PEP matches, including:
+      (a) who reviews the match (compliance team, MLRO);
+      (b) the decision options (proceed with EDD, reject, file SAR);
+      (c) the timeframe for resolution.
+    how_to_check: >
+      1. Determine whether the BRD describes what happens when a
+         sanctions or PEP match is found.
+      2. Specifically check:
+         (a) Is there a step that routes the case to compliance/MLRO?
+         (b) Is there a decision point (block, allow with EDD, escalate)?
+         (c) Is there a description of the disposition (reject / approve
+         with conditions)?
+      3. If screening is described but no escalation/decision process for
+         positive matches: gap.
+      4. If both screening and escalation process are described: satisfied.
+    consequence_if_gap: >
+      Without an escalation process, positive matches may be handled
+      inconsistently or ignored. A sanctioned individual could be onboarded
+      because no one reviewed the alert. This is both a regulatory breach
+      and a severe operational risk.
+    severity: high
+    source: "JMLSG Part I Ch.6 para 6.18; FCA SYSC 6.3"
+    depth: standard
+
+  - obligation_id: D4
+    category: "PEP & Sanctions Screening"
+    trigger: >
+      A customer is identified as a domestic (UK) PEP rather than a
+      foreign PEP.
+    obligation: >
+      Domestic PEPs may be treated as lower risk than foreign PEPs, but
+      EDD must still be applied. The risk level affects the intensity of
+      EDD, not whether EDD is applied.
+    how_to_check: >
+      1. Determine whether the BRD distinguishes between domestic and
+         foreign PEPs in its risk model.
+      2. If the BRD treats all PEPs the same (all high risk), this is
+         acceptable (conservative) — mark as satisfied.
+      3. If the BRD exempts domestic PEPs from EDD entirely: gap (domestic
+         PEPs still require EDD, just potentially less intensive).
+      4. If the BRD is silent on this distinction but applies EDD to all
+         PEPs: satisfied.
+    consequence_if_gap: >
+      Exempting domestic PEPs from EDD would be a breach of Reg 35. While
+      domestic PEPs may be lower risk, they are not zero risk.
+    severity: medium
+    source: "FCA FG17-6 para 4.4; MLR 2017 Reg 35(4)"
+    depth: standard
+
+  # =========================================================================
+  # E. Source of Funds & Source of Wealth
+  # =========================================================================
+
+  - obligation_id: E1
+    category: "Source of Funds & Source of Wealth"
+    trigger: >
+      The project involves opening a new account. Source of funds (SOF)
+      information should be obtained as part of CDD for all customers,
+      and verified for higher-risk customers.
+    obligation: >
+      The firm must obtain information on the source of funds for the
+      account opening (i.e., where the money used to open and fund the
+      account comes from).
+    how_to_check: >
+      1. Determine whether the BRD describes collection of source-of-funds
+         information during onboarding.
+      2. This could take the form of:
+         (a) a declared employment status and salary range;
+         (b) a declared source of initial deposit (salary, savings,
+         transfer from another account, etc.);
+         (c) documentation requirements for large initial deposits.
+      3. If the BRD has no SOF collection step: gap.
+      4. If the BRD collects SOF but only for specific cases (e.g., large
+         deposits) without a general collection mechanism: partial gap.
+    consequence_if_gap: >
+      Without SOF information, the firm cannot assess whether the funds
+      are consistent with the customer's profile. This undermines both
+      the initial risk assessment and ongoing monitoring.
+    severity: medium
+    source: "JMLSG Part I Ch.5 para 5.3.4; MLR 2017 Reg 28(2)(c)"
+    depth: deep
+
+  - obligation_id: E2
+    category: "Source of Funds & Source of Wealth"
+    trigger: >
+      The customer triggers EDD (PEP, high-risk country, complex/large
+      transactions, non-face-to-face without safeguards, etc.).
+    obligation: >
+      For EDD cases, the firm must verify (not just collect) the source
+      of wealth (SOW) — i.e., how the customer acquired their total wealth
+      — and the source of funds for the specific transaction/relationship.
+    how_to_check: >
+      1. Determine whether the BRD describes a SOW verification step that
+         is triggered when EDD is activated.
+      2. SOW verification goes beyond SOF collection — it requires
+         evidence (e.g., payslips, tax returns, sale documents, business
+         financials) rather than just a declaration.
+      3. If the BRD describes SOF collection for all customers but has
+         no enhanced SOW verification for EDD cases: gap.
+      4. If SOW verification for EDD cases is described: satisfied.
+    consequence_if_gap: >
+      Without SOW verification for EDD cases, the firm cannot distinguish
+      legitimate wealth from proceeds of crime. This is a core purpose of
+      EDD under MLR 2017 Reg 33(3A)(c).
+    severity: high
+    source: "MLR 2017 Reg 33(3A)(c); JMLSG Part I Ch.5 para 5.5.5"
+    depth: deep
+
+  - obligation_id: E3
+    category: "Source of Funds & Source of Wealth"
+    trigger: >
+      The firm is required to verify SOF/SOW for an EDD case.
+    obligation: >
+      SOF/SOW must be verified using evidence, not merely the customer's
+      self-declaration. Acceptable evidence includes payslips, bank
+      statements, tax returns, sale agreements, business financials, or
+      other independent documentation.
+    how_to_check: >
+      1. Determine whether the BRD describes what evidence is required
+         for SOF/SOW verification.
+      2. If the BRD only says "ask the customer for source of funds"
+         without describing evidence/documentation requirements: gap
+         (self-declaration alone is insufficient for EDD cases).
+      3. If the BRD describes specific evidence types (e.g., payslip,
+         bank statement, tax return): satisfied.
+    consequence_if_gap: >
+      Accepting self-declaration without evidence means a money launderer
+      can simply declare "salary" or "inheritance" without proof. The EDD
+      becomes a formality rather than a substantive control.
+    severity: high
+    source: "JMLSG Part I Ch.5 para 5.5.5; FCA FG17-6 para 5.7"
+    depth: standard
+
+  # =========================================================================
+  # F. Ongoing Monitoring
+  # =========================================================================
+
+  - obligation_id: F1
+    category: "Ongoing Monitoring"
+    trigger: >
+      The project establishes a new business relationship (account).
+      Ongoing monitoring is required for the duration of the relationship.
+    obligation: >
+      The firm must conduct ongoing monitoring of the business relationship,
+      including:
+      (a) scrutinising transactions throughout the relationship to ensure
+      they are consistent with the firm's knowledge of the customer;
+      (b) keeping CDD documents and information up to date.
+    how_to_check: >
+      1. Determine whether the BRD describes any post-onboarding
+         transaction monitoring or periodic review process.
+      2. For transaction monitoring, check whether the BRD describes:
+         (a) rules or thresholds for flagging unusual transactions;
+         (b) a review/escalation process for flagged transactions.
+      3. For CDD refresh, check whether the BRD describes periodic
+         re-verification of customer information.
+      4. If the BRD only describes the onboarding process with no mention
+         of ongoing monitoring: gap.
+      5. If ongoing monitoring is mentioned at a high level: satisfied
+         (operational detail may be in separate documentation).
+    consequence_if_gap: >
+      Without ongoing monitoring, the firm cannot detect changes in
+      customer behaviour that may indicate money laundering. The account
+      becomes a one-time checked channel with no surveillance. This is a
+      breach of MLR 2017 Reg 28(11).
+    severity: high
+    source: "MLR 2017 Reg 28(11)(a)–(b); JMLSG Part I Ch.5 para 5.6"
+    depth: standard
+
+  - obligation_id: F2
+    category: "Ongoing Monitoring"
+    trigger: >
+      The project involves risk-rated customers whose risk level may change
+      over time.
+    obligation: >
+      The firm must periodically refresh the customer's risk rating, or
+      refresh it when a significant event occurs (e.g., change in PEP
+      status, change in transaction pattern, change in jurisdiction).
+    how_to_check: >
+      1. Determine whether the BRD describes a periodic risk-rating review
+         (e.g., annual review for high-risk customers, triennial for
+         low-risk).
+      2. Alternatively, check whether the BRD describes event-triggered
+         risk re-assessment (e.g., when a sanctions list update occurs,
+         when a transaction alert fires).
+      3. If neither periodic nor event-triggered review is described: gap.
+    consequence_if_gap: >
+      A customer's risk level is not static. Without periodic refresh,
+      a low-risk customer who becomes high-risk (e.g., enters a PEP list)
+      will not be re-evaluated, missing the need for EDD.
+    severity: medium
+    source: "MLR 2017 Reg 28(11)(b); JMLSG Part I Ch.5 para 5.6.3"
+    depth: standard
+
+  - obligation_id: F3
+    category: "Ongoing Monitoring"
+    trigger: >
+      The firm performs sanctions and PEP screening at onboarding.
+      Sanctions lists and PEP lists are updated periodically (daily or
+      more frequently).
+    obligation: >
+      The firm must re-screen existing customers against updated sanctions
+      and PEP lists. A one-time screening at onboarding is insufficient
+      because a customer may become a sanctioned person or PEP after
+      onboarding.
+    how_to_check: >
+      1. Determine whether the BRD describes a process for re-screening
+         existing customers when sanctions or PEP lists are updated.
+      2. This could take the form of:
+         (a) daily batch screening of all customers against updated lists;
+         (b) real-time screening triggered by list updates;
+         (c) periodic full re-screening (e.g., monthly).
+      3. If the BRD only describes at-onboarding screening with no mention
+         of ongoing/rescreening: gap.
+      4. If rescreening is described: satisfied.
+    consequence_if_gap: >
+      A customer who was clean at onboarding but is later added to a
+      sanctions list will not be detected. The firm continues to provide
+      services to a sanctioned person, which is a criminal offence. This
+      is one of the most commonly missed obligations in digital onboarding
+      projects because the focus is on the onboarding flow, not post-
+      onboarding operations.
+    severity: high
+    source: "JMLSG Part I Ch.6 para 6.20; OFSI operational guidance"
+    depth: deep
+
+  - obligation_id: F4
+    category: "Ongoing Monitoring"
+    trigger: >
+      The firm identifies a transaction or pattern that may be suspicious
+      during ongoing monitoring.
+    obligation: >
+      The firm must have a process for escalating suspicious activity to
+      its internal Nominated Officer (Money Laundering Reporting Officer,
+      MLRO), who is responsible for deciding whether to file a Suspicious
+      Activity Report (SAR) with the National Crime Agency (NCA).
+    how_to_check: >
+      1. Determine whether the BRD describes a SAR escalation path
+         (transaction alert → compliance review → MLRO decision →
+         NCA report if warranted).
+      2. If the BRD mentions SAR filing or MLRO escalation: satisfied.
+      3. If no SAR process is described: gap.
+    consequence_if_gap: >
+      Without a SAR escalation path, suspicious transactions are detected
+      but not reported. Failing to report suspicion of money laundering
+      is a criminal offence under POCA 2002 s330.
+    severity: high
+    source: "POCA 2002 s330; JMLSG Part I Ch.7"
+    depth: standard
+
+  # =========================================================================
+  # G. Record Keeping
+  # =========================================================================
+
+  - obligation_id: G1
+    category: "Record Keeping"
+    trigger: >
+      The project involves collecting CDD information and evidence during
+      account opening.
+    obligation: >
+      The firm must retain CDD records, including identity verification
+      evidence, for at least 5 years after the end of the business
+      relationship.
+    how_to_check: >
+      1. Determine whether the BRD describes a record retention policy
+         or references a retention period for CDD documentation.
+      2. If the BRD specifies a retention period of at least 5 years
+         post-relationship: satisfied.
+      3. If the BRD does not mention retention at all: gap.
+      4. If the BRD mentions retention but with a period less than 5
+         years: gap.
+    consequence_if_gap: >
+      Without proper retention, the firm cannot demonstrate compliance
+      to regulators or law enforcement. If CDD records are deleted too
+      early, investigations into historical transactions are compromised.
+    severity: medium
+    source: "MLR 2017 Reg 40(1)–(2); JMLSG Part I Ch.5 para 5.8"
+    depth: standard
+
+  - obligation_id: G2
+    category: "Record Keeping"
+    trigger: >
+      The project involves account transactions.
+    obligation: >
+      Transaction records must be retained for at least 5 years from
+      the date of the transaction.
+    how_to_check: >
+      1. Determine whether the BRD describes transaction record retention
+         (this may be in the core banking system specification rather
+         than the onboarding BRD).
+      2. If the BRD or referenced systems specify transaction record
+         retention of at least 5 years: satisfied.
+      3. If not mentioned: unclear (may be handled by existing systems,
+         but the BRD should confirm).
+    consequence_if_gap: >
+      Without transaction record retention, the firm cannot reconstruct
+      transaction histories for financial crime investigations.
+    severity: medium
+    source: "MLR 2017 Reg 40(3); JMLSG Part I Ch.5 para 5.8.2"
+    depth: standard
+
+  - obligation_id: G3
+    category: "Record Keeping"
+    trigger: >
+      The project involves automated KYC/identity verification decisions
+      during digital onboarding.
+    obligation: >
+      The firm must maintain an audit trail of all KYC decisions, including
+      what was checked, what the result was, who/what system made the
+      decision, and when. This is especially important for automated
+      decisions in digital onboarding.
+    how_to_check: >
+      1. Determine whether the BRD describes an audit trail or logging
+         requirement for KYC decisions.
+      2. Specifically check:
+         (a) Are automated decisions (approve/reject/escalate) logged with
+         timestamp and reason?
+         (b) Are manual review decisions logged with reviewer identity?
+         (c) Are the underlying verification results (e.g., ID check score,
+         sanctions screening result) stored?
+      3. If the BRD mentions audit trail/logging for KYC: satisfied.
+      4. If no audit trail is described: gap.
+    consequence_if_gap: >
+      Without an audit trail, the firm cannot demonstrate to regulators
+      that it performed CDD. In automated digital onboarding, this is
+      particularly critical because there may be no human reviewer to
+      testify to the process.
+    severity: high
+    source: "MLR 2017 Reg 40(1); FCA SYSC 9; JMLSG Part I Ch.5 para 5.8.3"
+    depth: standard
+
+  # =========================================================================
+  # H. Data Protection (GDPR, account-opening specific)
+  # =========================================================================
+
+  - obligation_id: H1
+    category: "Data Protection (GDPR)"
+    trigger: >
+      The project involves processing personal data (identity documents,
+      biometric data, financial information) during account opening.
+    obligation: >
+      The firm must have a lawful basis for processing personal data.
+      For CDD/AML purposes, the lawful basis is typically "legal obligation"
+      (Article 6(1)(c) UK GDPR). For biometric data (selfie matching),
+      the processing is likely "special category" and requires a further
+      condition under Article 9.
+    how_to_check: >
+      1. Determine whether the BRD references the lawful basis for
+         processing personal data during onboarding.
+      2. If the BRD describes biometric processing (selfie/liveness
+         detection), check whether it addresses the Article 9 condition
+         (e.g., explicit consent, or substantial public interest for AML).
+      3. If the BRD does not mention lawful basis at all: gap.
+      4. If the BRD references legal obligation for standard CDD data:
+         satisfied. If biometric processing is involved but Article 9
+         is not addressed: partial gap.
+    consequence_if_gap: >
+      Processing personal data without a lawful basis is a breach of UK
+      GDPR. Biometric data without an Article 9 condition is a higher-
+      risk breach (potential £17.5m or 4% turnover fine).
+    severity: medium
+    source: "UK GDPR Article 6(1)(c), Article 9; DPA 2018 Sch 1 Part 2"
+    depth: standard
+
+  - obligation_id: H2
+    category: "Data Protection (GDPR)"
+    trigger: >
+      The project involves collecting personal data during account opening.
+    obligation: >
+      The firm must apply data minimisation — collecting only personal data
+      that is adequate, relevant, and limited to what is necessary for the
+      stated purpose (CDD/AML compliance).
+    how_to_check: >
+      1. Review the data fields described in the BRD for collection during
+         onboarding.
+      2. Flag any fields that are not necessary for CDD/AML or account
+         operation — e.g., collecting social media profiles, detailed
+         employment history beyond what is needed for SOF, or collecting
+         biometric data when it is not used for verification.
+      3. If the BRD collects only CDD-relevant data: satisfied.
+      4. If the BRD collects unnecessary data: partial gap.
+    consequence_if_gap: >
+      Over-collection of personal data increases GDPR risk and undermines
+      customer trust. If a data breach occurs, the impact is greater
+      because more data is exposed.
+    severity: low
+    source: "UK GDPR Article 5(1)(c)"
+    depth: standard
+
+  - obligation_id: H3
+    category: "Data Protection (GDPR)"
+    trigger: >
+      The project involves retaining CDD data and transaction data.
+    obligation: >
+      The firm must have a defined data retention schedule. CDD data must
+      be retained for at least 5 years (per MLR 2017 Reg 40) but must not
+      be retained indefinitely beyond the legal requirement without a
+      valid basis. The BRD should describe how long data is kept and
+      what happens after the retention period.
+    how_to_check: >
+      1. Determine whether the BRD describes a retention period for
+         customer data.
+      2. The retention period should be consistent with MLR 2017 Reg 40
+         (5 years post-relationship) — not shorter (AML breach) and
+         not significantly longer without justification (GDPR risk).
+      3. If the BRD describes retention of 5 years post-relationship with
+         a deletion/anonymisation process: satisfied.
+      4. If the BRD mentions "retain indefinitely" or does not address
+         deletion: gap.
+    consequence_if_gap: >
+      Retaining data beyond the legal retention period without a valid
+      basis breaches UK GDPR storage limitation principle. Deleting too
+      early breaches MLR 2017 Reg 40.
+    severity: medium
+    source: "MLR 2017 Reg 40; UK GDPR Article 5(1)(e)"
+    depth: standard
+
+  - obligation_id: H4
+    category: "Data Protection (GDPR)"
+    trigger: >
+      The project processes personal data of customers who are data
+      subjects under UK GDPR.
+    obligation: >
+      The firm must be able to respond to data subject rights requests,
+      including access (Article 15) and erasure (Article 17, subject to
+      the AML retention exception).
+    how_to_check: >
+      1. Determine whether the BRD describes how the onboarding system
+         supports data subject rights requests (e.g., the ability to
+         export all data held about a customer, or to delete data when
+         legally permissible).
+      2. If the BRD mentions DSAR support or references the firm's
+         existing DSAR process: satisfied.
+      3. If the BRD does not mention data subject rights at all: this
+         may be acceptable if DSAR is handled by a separate system,
+         but it should at minimum reference it.
+    consequence_if_gap: >
+      Inability to respond to DSARs within the statutory timeframe
+      (1 month) is a GDPR breach. While this may be handled outside
+         the onboarding system, the onboarding system must be able to
+         provide the data it holds.
+    severity: low
+    source: "UK GDPR Articles 12–15, 17; DPA 2018 Sch 2 Part 2"
+    depth: standard
+
+  # =========================================================================
+  # I. FCA Consumer Duty (retail banking specific)
+  # =========================================================================
+
+  - obligation_id: I1
+    category: "FCA Consumer Duty"
+    trigger: >
+      The project is a retail banking product (current account for
+      individual customers). FCA Consumer Duty applies to all retail
+      products.
+    obligation: >
+      The firm must assess whether the product/service delivers fair value
+      for the target market. For a current account, this includes assessing
+      whether fees, charges, and non-price costs (e.g., time to open,
+      complexity) are proportionate.
+    how_to_check: >
+      1. Determine whether the BRD references a fair value assessment
+         (FVA) for the account-opening process or the product itself.
+      2. If the BRD references Consumer Duty or fair value: satisfied.
+      3. If the BRD does not mention Consumer Duty at all: this may be
+         a gap (the FVA may exist in a separate document, but the BRD
+         should at least reference it).
+    consequence_if_gap: >
+      Without fair value consideration, the firm cannot demonstrate
+      compliance with FCA Consumer Duty (PRIN 2A). This could result
+      in FCA enforcement and remediation requirements.
+    severity: medium
+    source: "FCA Handbook PRIN 2A.2; FCA FG22-5"
+    depth: standard
+
+  - obligation_id: I2
+    category: "FCA Consumer Duty"
+    trigger: >
+      The project changes the account-opening process, which is a key
+      consumer journey.
+    obligation: >
+      The firm must ensure the process avoids foreseeable harm to
+      customers. For digital onboarding, foreseeable harms include:
+      (a) exclusion of customers without smartphones;
+      (b) exclusion of customers with disabilities (accessibility);
+      (c) drop-off due to overly complex verification;
+      (d) incorrect rejection of legitimate customers.
+    how_to_check: >
+      1. Determine whether the BRD describes measures to avoid consumer
+         harm in the onboarding process.
+      2. Specifically check for:
+         (a) accessibility requirements (e.g., WCAG 2.1 AA reference);
+         (b) a fallback process for customers who cannot complete
+         digital onboarding (e.g., branch alternative);
+         (c) a process for reviewing/overturning incorrect rejections.
+      3. If at least one harm-prevention measure is described: satisfied.
+      4. If none are described: gap.
+    consequence_if_gap: >
+      Without harm-prevention measures, the firm risks breaching the
+      Consumer Duty's "avoid causing foreseeable harm" rule. This could
+      lead to FCA action and customer complaints.
+    severity: medium
+    source: "FCA Handbook PRIN 2A.4; FCA FG22-5"
+    depth: standard
+
+  - obligation_id: I3
+    category: "FCA Consumer Duty"
+    trigger: >
+      The project involves customer communication during the onboarding
+      process (terms, decisions, rejections).
+    obligation: >
+      Communications must be clear, fair, and not misleading, and must
+      support the customer's understanding of the product and process.
+    how_to_check: >
+      1. Determine whether the BRD describes the customer communications
+         during onboarding (welcome messages, decision notifications,
+         rejection reasons).
+      2. Check whether the BRD references a requirement for clear/plain
+         language or consumer-tested communications.
+      3. If the BRD describes communications with a clarity requirement:
+         satisfied.
+      4. If communications are not mentioned or only described as
+         system-generated without any clarity requirement: partial gap.
+    consequence_if_gap: >
+      Unclear communications during onboarding can confuse customers
+      about the status of their application, leading to complaints and
+      potential Consumer Duty breaches.
+    severity: low
+    source: "FCA Handbook PRIN 2A.5; FCA FG22-5"
+    depth: standard

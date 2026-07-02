@@ -1,0 +1,119 @@
+================================================================================
+TO-BE PROCESS: Enhanced Digital Account Opening (Automated KYC)
+================================================================================
+
+PROCESS OVERVIEW:
+The enhanced digital account opening process replaces manual KYC checks
+with automated identity verification and real-time screening. The goal is
+to reduce account opening time to under 5 minutes for low-risk customers
+while maintaining regulatory compliance.
+
+--------------------------------------------------------------------------------
+
+STEP-BY-STEP PROCESS:
+
+Step 1: Customer downloads the mobile app or visits the website.
+
+Step 2: Identity verification via Onfido API.
+        - Customer uploads a photo of their passport or driving licence
+        - Customer takes a selfie
+        - Onfido checks the document authenticity and matches the selfie
+          to the document photo
+
+Step 3: Real-time KYC check via screening API.
+        - PEP screening (politically exposed persons)
+        - Sanctions screening (OFSI, UN, EU consolidated lists)
+        - Adverse media screening
+
+Step 4: Automated credit reference check via Experian API.
+        - Credit score retrieved in real-time
+
+Step 5: Risk scoring algorithm processes all inputs and assigns a
+        risk level:
+        - Risk factors: PEP/sanctions screening result, credit score,
+          Onfido confidence score
+        - Output: Low / Medium / High
+
+Step 6: Processing based on risk level:
+        - LOW RISK: Instant approval (< 5 minutes)
+          → Account created automatically in core banking system
+          → Virtual debit card issued immediately
+          → Physical card dispatched within 2 working days
+
+        - MEDIUM RISK: Semi-automated review (< 4 hours)
+          → Application routed to onboarding team for review
+          → Onboarding team reviews screening results and makes a decision
+          → If approved, account created and card issued
+
+        - HIGH RISK: Manual compliance review
+          → Application routed to compliance team
+          → Compliance officer reviews and makes a decision
+          → If approved, account created with enhanced monitoring flag
+
+Step 7: Account creation in core banking system (automated for low-risk,
+        manual trigger for medium/high-risk).
+
+Step 8: Virtual debit card issued immediately (for low-risk approvals).
+
+Step 9: Physical card issued within 2 working days.
+
+Step 10: Onboarding analytics dashboard for management — shows daily
+         application volumes, approval rates, drop-off points, risk
+         distribution.
+
+--------------------------------------------------------------------------------
+
+CUSTOMER COMMUNICATIONS:
+- Application received: instant confirmation email/SMS
+- Verification in progress: status update on app
+- Decision (approved/rejected): notification with reason
+- Account opened: welcome email with account details
+- Card dispatched: notification with tracking
+
+--------------------------------------------------------------------------------
+
+ACCESSIBILITY:
+- Mobile app meets WCAG 2.1 AA standards
+- Web fallback available for customers without smartphones
+- Branch fallback available for customers who cannot complete digital flow
+
+--------------------------------------------------------------------------------
+
+DATA RETENTION:
+- CDD records retained for 5 years post-relationship (MLR 2017 Reg 40)
+- Transaction records retained for 5 years
+- Marketing data retained for 6 months post-relationship
+- Audit trail: all KYC decisions logged with timestamp, input data,
+  and decision rationale
+
+--------------------------------------------------------------------------------
+
+INTEGRATIONS:
+- Onfido API (identity verification)
+- Screening API (PEP/sanctions/adverse media — provider TBD)
+- Experian API (credit reference)
+- Salesforce CRM (customer record)
+- Core banking system (account creation)
+- Card issuance system (virtual and physical cards)
+
+--------------------------------------------------------------------------------
+
+SCOPE EXCLUSIONS:
+- Ongoing transaction monitoring (handled by existing compliance system)
+- Post-onboarding risk rating refresh
+- Periodic CDD re-verification
+- Non-UK resident onboarding (Phase 2)
+
+--------------------------------------------------------------------------------
+
+EXPECTED BENEFITS:
+- Time: < 5 minutes for low-risk customers (from 5-7 days)
+- Drop-off rate: reduce from 40% to < 15%
+- FTE reduction: from 3 to 1 (monitoring only)
+- 100% audit trail via automated logging
+- Consistent decision-making via standardised risk scoring
+- Real-time customer status updates
+
+--------------------------------------------------------------------------------
+END OF TO-BE PROCESS DOCUMENT
+================================================================================

@@ -1,0 +1,33 @@
+# ── Secrets ──────────────────────────────────
+.env
+.streamlit/secrets.toml
+
+# ── Python ───────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# ── Streamlit ────────────────────────────────
+.streamlit/secrets.toml
+
+# ── OS files ─────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Internal design notes (not for public) ──
+data/demo_gap_design_notes.md
+data/reverse_test_results.json
+
+# ── Editor ───────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo

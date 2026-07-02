@@ -1,0 +1,1165 @@
+{
+  "saved_at": "2026-07-02T19:43:49.125306+00:00",
+  "input_text": "================================================================================\nMEETING TRANSCRIPT — Digital Account Opening Enhancement Project\n================================================================================\nDate: 15th March 2024\nAttendees: Sarah Chen (Product Owner), James Okafor (Business Analyst),\n           Emma Wright (Compliance Officer), David Patel (Tech Lead)\nProject Sponsor: Retail Banking Division\n\n--------------------------------------------------------------------------------\nAGENDA: Define requirements for Phase 1 of the digital account opening\n        enhancement project. The goal is to reduce account opening time\n        from 5-7 days to under 5 minutes for low-risk customers.\n--------------------------------------------------------------------------------\n\nDISCUSSION POINTS:\n\n1. [Sarah] Current process takes 5-7 working days because KYC checks are\n   done manually by the KYC team. Customer drop-off rate is 40% at the\n   ID document upload stage. We need to automate this.\n\n2. [David] We propose using the Onfido API for identity verification.\n   The customer uploads a photo of their passport or driving licence,\n   and takes a selfie. Onfido checks the document and matches it to\n   the selfie.\n\n3. [Emma] We need a real-time KYC check as well — PEPs, sanctions, and\n   adverse media screening. We can use a screening API that checks\n   against consolidated lists.\n\n4. [Sarah] We also need an automated credit reference check via Experian.\n   This is already in place for the current process, we just need to\n   integrate it into the new flow.\n\n5. [David] We'll build a risk scoring algorithm. Low-risk customers get\n   instant approval. Medium-risk go to semi-automated review by the\n   onboarding team. High-risk go to the compliance team for manual\n   review.\n\n6. [Sarah] What factors feed into the risk score?\n\n7. [David] We'll use the screening result (PEP hit, sanctions hit),\n   the credit score from Experian, and whether the ID verification\n   confidence score is above threshold. If any of these flag, the\n   customer goes to manual review.\n\n8. [Emma] We need to comply with FCA Consumer Duty regulations. The\n   process should be accessible — we need WCAG 2.1 AA compliance for\n   the app.\n\n9. [James] GDPR compliance is required for customer data storage.\n   We should retain data for no more than 6 months after the customer\n   relationship ends. Actually, let me check — Emma, what's the AML\n   retention requirement?\n\n10. [Emma] Good point. MLR 2017 requires 5 years post-relationship\n    retention for CDD records. So our retention policy should be 5\n    years, not 6 months. The 6 months I mentioned earlier was for\n    marketing data, not CDD data.\n\n11. [David] The system needs to integrate with our existing CRM\n    (Salesforce) and the core banking system for account creation.\n\n12. [Sarah] Performance requirement: 99.9% uptime during business hours.\n    The system should handle 10,000 concurrent applications.\n\n13. [David] Risk: Third-party API dependency. If Onfido goes down, we\n    need a fallback mechanism. Maybe queue the application and process\n    when the API is back.\n\n14. [Sarah] Decision: MVP will launch with automated KYC for UK\n    residents only. Non-UK residents will continue to use the branch\n    process for now.\n\n15. [James] Action item: I'll draft user stories by 22nd March.\n\n16. [Sarah] Assumption: Customers have a smartphone with a camera. We'll\n    offer a web fallback but the optimised experience is mobile.\n\n17. [Sarah] Constraint: Budget capped at £150k for Phase 1.\n\n18. [Emma] Regulatory requirement: We must maintain an audit trail for\n    all KYC decisions. Every automated decision needs to be logged\n    with the timestamp, the input data, and the decision rationale.\n\n19. [David] For low-risk customers, the system will create the account\n    automatically in the core banking system and issue a virtual debit\n    card immediately. Physical card within 2 working days.\n\n20. [James] What about ongoing monitoring after the account is opened?\n\n21. [Emma] That's handled by the existing transaction monitoring system\n    in the compliance team. It's out of scope for this project — we're\n    just doing the onboarding flow.\n\n22. [Sarah] What about customers who can't complete the digital flow?\n    We should have a branch fallback.\n\n23. [David] Yes, customers who fail digital onboarding can visit a\n    branch and complete the process manually. The branch staff have\n    access to the same screening tools.\n\n24. [Emma] We should also make sure that if a customer is rejected,\n    we log the reason and keep the record for the retention period.\n\n25. [James] OK, I think I have enough to draft the requirements. Let me\n    summarise the key points:\n    - Automated identity verification via Onfido (photo ID + selfie)\n    - Real-time PEP and sanctions screening\n    - Automated credit reference check via Experian\n    - Risk scoring (low/medium/high) with different processing paths\n    - Automated account creation and virtual card issuance for low-risk\n    - Integration with Salesforce and core banking system\n    - WCAG 2.1 AA accessibility compliance\n    - 5-year data retention policy (AML requirement)\n    - Full audit trail for all KYC decisions\n    - Branch fallback for customers who can't complete digital flow\n    - UK residents only for MVP\n\n26. [Sarah] That's a good summary. Let's circulate and review.\n\n[Meeting ends]\n",
+  "extraction_result": {
+    "requirements": [
+      {
+        "req_id": "REQ-001",
+        "title": "Automated Identity Verification via Onfido",
+        "description": "Integrate Onfido API to allow customers to upload a photo of their passport or driving licence and take a selfie for identity verification. The system must check the document and match it to the selfie.",
+        "type": "Functional",
+        "priority": "High",
+        "source_ref": "Point 2"
+      },
+      {
+        "req_id": "REQ-002",
+        "title": "Real-Time PEP and Sanctions Screening",
+        "description": "Implement real-time screening against PEPs, sanctions, and adverse media lists using a screening API. The check must be performed during account opening.",
+        "type": "Functional",
+        "priority": "High",
+        "source_ref": "Point 3"
+      },
+      {
+        "req_id": "REQ-003",
+        "title": "Automated Credit Reference Check via Experian",
+        "description": "Integrate Experian API to perform an automated credit reference check as part of the account opening process.",
+        "type": "Functional",
+        "priority": "High",
+        "source_ref": "Point 4"
+      },
+      {
+        "req_id": "REQ-004",
+        "title": "Risk Scoring Algorithm",
+        "description": "Build a risk scoring algorithm that categorizes customers as low, medium, or high risk based on screening results, credit score, and ID verification confidence score. Low-risk customers get instant approval, medium-risk go to semi-automated review, high-risk go to manual compliance review.",
+        "type": "Functional",
+        "priority": "High",
+        "source_ref": "Point 5, 7"
+      },
+      {
+        "req_id": "REQ-005",
+        "title": "Automated Account Creation and Virtual Card Issuance for Low-Risk Customers",
+        "description": "For low-risk customers, automatically create an account in the core banking system and issue a virtual debit card immediately. Physical card to be sent within 2 working days.",
+        "type": "Functional",
+        "priority": "High",
+        "source_ref": "Point 19"
+      },
+      {
+        "req_id": "REQ-006",
+        "title": "Integration with Salesforce CRM",
+        "description": "Integrate the digital account opening system with the existing Salesforce CRM to sync customer data and onboarding status.",
+        "type": "Functional",
+        "priority": "High",
+        "source_ref": "Point 11"
+      },
+      {
+        "req_id": "REQ-007",
+        "title": "Integration with Core Banking System",
+        "description": "Integrate the digital account opening system with the core banking system for account creation and data exchange.",
+        "type": "Functional",
+        "priority": "High",
+        "source_ref": "Point 11"
+      },
+      {
+        "req_id": "REQ-008",
+        "title": "WCAG 2.1 AA Accessibility Compliance",
+        "description": "The digital account opening application must comply with WCAG 2.1 AA accessibility standards to ensure it is accessible to all users, including those with disabilities.",
+        "type": "Regulatory",
+        "priority": "High",
+        "source_ref": "Point 8"
+      },
+      {
+        "req_id": "REQ-009",
+        "title": "Data Retention Policy for CDD Records (5 Years)",
+        "description": "Customer due diligence records must be retained for 5 years after the customer relationship ends, as required by MLR 2017. Marketing data retention is 6 months.",
+        "type": "Regulatory",
+        "priority": "High",
+        "source_ref": "Point 10"
+      },
+      {
+        "req_id": "REQ-010",
+        "title": "Full Audit Trail for KYC Decisions",
+        "description": "Every automated KYC decision must be logged with timestamp, input data, and decision rationale. The audit trail must be maintained for the retention period.",
+        "type": "Regulatory",
+        "priority": "High",
+        "source_ref": "Point 18"
+      },
+      {
+        "req_id": "REQ-011",
+        "title": "Branch Fallback for Digital Onboarding Failures",
+        "description": "Customers who cannot complete the digital onboarding process (e.g., fail verification) must be able to visit a branch to complete the process manually. Branch staff must have access to the same screening tools.",
+        "type": "Functional",
+        "priority": "Medium",
+        "source_ref": "Point 22, 23"
+      },
+      {
+        "req_id": "REQ-012",
+        "title": "Rejection Logging and Record Keeping",
+        "description": "If a customer is rejected during onboarding, the reason must be logged and the record kept for the required retention period.",
+        "type": "Regulatory",
+        "priority": "Medium",
+        "source_ref": "Point 24"
+      },
+      {
+        "req_id": "REQ-013",
+        "title": "System Uptime 99.9% During Business Hours",
+        "description": "The system must achieve 99.9% uptime during business hours to ensure availability for customers.",
+        "type": "Non-Functional",
+        "priority": "High",
+        "source_ref": "Point 12"
+      },
+      {
+        "req_id": "REQ-014",
+        "title": "Handle 10,000 Concurrent Applications",
+        "description": "The system must be able to handle 10,000 concurrent account applications without performance degradation.",
+        "type": "Non-Functional",
+        "priority": "High",
+        "source_ref": "Point 12"
+      },
+      {
+        "req_id": "REQ-015",
+        "title": "Fallback Mechanism for Onfido API Outage",
+        "description": "If the Onfido API is unavailable, the system must queue the application and process it when the API is back online, or provide an alternative fallback.",
+        "type": "Non-Functional",
+        "priority": "Medium",
+        "source_ref": "Point 13"
+      },
+      {
+        "req_id": "REQ-016",
+        "title": "MVP Scope: UK Residents Only",
+        "description": "The MVP of the digital account opening system will only support UK residents. Non-UK residents will continue to use the branch process.",
+        "type": "Functional",
+        "priority": "High",
+        "source_ref": "Point 14"
+      }
+    ],
+    "decisions": [
+      "MVP will launch with automated KYC for UK residents only; non-UK residents continue branch process.",
+      "Ongoing transaction monitoring is out of scope for this project.",
+      "Use Onfido API for identity verification.",
+      "Use Experian for credit reference check.",
+      "Risk scoring algorithm will use screening result, credit score, and ID verification confidence score.",
+      "Data retention: 5 years for CDD records (AML requirement), 6 months for marketing data."
+    ],
+    "actions": [
+      "James to draft user stories by 22nd March."
+    ],
+    "risks": [
+      "Third-party API dependency: Onfido outage could impact onboarding. Mitigation: queue applications and process when API is back."
+    ],
+    "assumptions": [
+      "Customers have a smartphone with a camera; web fallback available but mobile is optimised."
+    ],
+    "constraints": [
+      "Budget capped at £150k for Phase 1."
+    ]
+  },
+  "compliance_report": {
+    "total": 36,
+    "satisfied": [
+      {
+        "obligation_id": "A1",
+        "status": "satisfied",
+        "reasoning": "The BRD describes collection of identity via photo of passport/driving licence and a selfie (point 2), and verification via Onfido API which checks the document and matches to the selfie. This constitutes verification using a reliable, independent source (digital identity service).",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "A3",
+        "status": "satisfied",
+        "reasoning": "The BRD describes collection of a passport or driving licence (point 2), which typically includes date of birth. The selfie matching and Onfido verification process would use the date of birth from the ID document. Additionally, the credit reference check via Experian (point 4) would also use date of birth for matching. Therefore, date of birth is collected and used in verification.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "A4",
+        "status": "satisfied",
+        "reasoning": "The BRD names Onfido as the digital identity service provider (point 2) and describes liveness detection via selfie matching. This indicates anti-fraud measures. Although the BRD does not explicitly reference the UK Digital Identity Trust Framework or ISO certification, the description of document authenticity checks and biometric matching provides sufficient assurance that the service meets the standard of a reliable, independent source.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "B1",
+        "status": "satisfied",
+        "reasoning": "The BRD describes a risk scoring algorithm (point 5) that classifies customers as low, medium, or high risk. The factors include screening results, credit score, and ID verification confidence (point 7). This constitutes a risk assessment at onboarding.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "B3",
+        "status": "satisfied",
+        "reasoning": "The BRD describes different processing paths based on risk level (point 5): low-risk customers get instant approval (automated), medium-risk go to semi-automated review by onboarding team, high-risk go to compliance team for manual review. This demonstrates proportionate CDD measures.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "C1",
+        "status": "satisfied",
+        "reasoning": "The trigger is activated because the digital flow is non-face-to-face (no real-time human interaction described). The BRD describes compensating safeguards: liveness detection via selfie matching (point 2), multi-source verification (Onfido document check + selfie + Experian credit check), and a digital identity service (Onfido). These go beyond simply accepting a photo of an ID.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "D1",
+        "status": "satisfied",
+        "reasoning": "The BRD explicitly mentions 'real-time PEP and sanctions screening' (point 3 and point 25). While it does not specify the exact lists, the mention of 'sanctions screening' is sufficient to satisfy this obligation at the BRD level. The operational details can be defined later.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "D2",
+        "status": "satisfied",
+        "reasoning": "The BRD explicitly mentions 'PEP screening' (point 3 and point 25). It does not detail coverage of family members or close associates, but the obligation is satisfied at the BRD level as the requirement to screen for PEPs is stated.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "D4",
+        "status": "satisfied",
+        "reasoning": "The BRD does not distinguish between domestic and foreign PEPs. It treats all PEPs as a risk factor that sends the customer to manual review (point 7). Since it does not exempt domestic PEPs from EDD, this conservative approach satisfies the obligation.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "G1",
+        "status": "satisfied",
+        "reasoning": "The BRD explicitly states a 5-year data retention policy for AML requirements (item 10: 'MLR 2017 requires 5 years post-relationship retention for CDD records. So our retention policy should be 5 years'). This satisfies the obligation.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "G3",
+        "status": "satisfied",
+        "reasoning": "The BRD explicitly requires an audit trail for all KYC decisions (item 18: 'We must maintain an audit trail for all KYC decisions. Every automated decision needs to be logged with the timestamp, the input data, and the decision rationale.'). This satisfies the obligation.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "H2",
+        "status": "satisfied",
+        "reasoning": "The BRD describes collecting only CDD-relevant data: photo ID (passport/driving licence), selfie, credit reference data, and screening data. No unnecessary fields like social media profiles or detailed employment history are mentioned. Data minimisation is implicitly followed.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "H3",
+        "status": "satisfied",
+        "reasoning": "The BRD explicitly discusses retention: Emma corrects James that CDD data must be retained for 5 years per MLR 2017 (point 10). The BRD also mentions retaining rejection records for the retention period (point 24). This satisfies the obligation.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "I2",
+        "status": "satisfied",
+        "reasoning": "The BRD addresses multiple harm-prevention measures: (a) WCAG 2.1 AA accessibility (point 8); (b) branch fallback for customers who cannot complete digital flow (point 22-23); (c) manual review for medium/high-risk customers reduces incorrect rejections (point 5,7). This satisfies the obligation.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      }
+    ],
+    "gaps": [
+      {
+        "obligation_id": "A2",
+        "status": "gap",
+        "reasoning": "The BRD mentions an automated credit reference check via Experian (point 4) which could include address verification, but there is no explicit requirement to collect and verify the customer's residential address. The credit check is mentioned for risk scoring, not specifically for address verification. No step describes address collection or verification.",
+        "consequence_if_gap": "The firm cannot verify where the customer actually resides, undermining risk assessment (geographic risk factor) and making it harder to detect synthetic identities that use fabricated addresses.",
+        "suggested_control": "Add a requirement to collect the customer's residential address and verify it using the Experian credit reference check or a utility bill validation step."
+      },
+      {
+        "obligation_id": "A5",
+        "status": "gap",
+        "reasoning": "The BRD describes a branch fallback for customers who cannot complete the digital flow (point 23), but does not explicitly state that the account will not be opened if CDD cannot be completed. There is no failure branch described for the digital process; the only fallback is to branch, which may still result in account opening. The BRD does not mention considering a SAR if CDD fails.",
+        "consequence_if_gap": "Accounts could be opened without completed CDD, directly violating MLR 2017 Reg 31. The firm would have no process to prevent onboarding of individuals whose identity cannot be verified.",
+        "suggested_control": "Add a requirement that if identity verification fails or cannot be completed, the account must not be opened and the firm must consider filing a Suspicious Activity Report (SAR)."
+      },
+      {
+        "obligation_id": "A6",
+        "status": "gap",
+        "reasoning": "The BRD does not describe any collection of information on the purpose and intended nature of the business relationship. There is no question about why the customer wants the account, expected transaction volumes, or source of funds. The process focuses on identity verification and risk scoring but omits this CDD requirement.",
+        "consequence_if_gap": "Without understanding the expected nature of the relationship, the firm cannot establish a baseline for ongoing monitoring. Unusual transactions cannot be flagged because there is no 'usual' baseline.",
+        "suggested_control": "Add a requirement to collect information on the purpose and intended nature of the account (e.g., expected usage, source of funds) during the onboarding flow."
+      },
+      {
+        "obligation_id": "B2",
+        "status": "gap",
+        "reasoning": "The risk scoring factors described (point 7) are limited to screening results (PEP/sanctions), credit score, and ID verification confidence. These cover customer risk (PEP) and product risk (implicitly via ID confidence), but do not explicitly include geographical risk factors (e.g., customer's country of residence) or delivery channel risk (non-face-to-face). The BRD states MVP is for UK residents only (point 14), so geographical risk may be less relevant, but the risk model should still consider it for future expansion. Additionally, delivery channel risk is not considered.",
+        "consequence_if_gap": "A single-dimension risk score may miss important risk combinations (e.g., a non-PEP customer in a high-risk country with a non-face-to-face channel). The firm's risk model would be incomplete.",
+        "suggested_control": "Add geographical risk factors (e.g., country of residence, country of birth) and delivery channel risk (non-face-to-face) to the risk scoring algorithm."
+      },
+      {
+        "obligation_id": "C2",
+        "status": "gap",
+        "reasoning": "The BRD mentions PEP screening (point 3: 'PEPs, sanctions, and adverse media screening') and risk scoring (point 5) that sends high-risk to compliance. However, it does not describe the specific EDD measures required for PEPs: senior management approval, source of wealth/funds verification, or enhanced ongoing monitoring. The BRD only says high-risk goes to manual review, but does not specify what that review entails. Therefore, the obligation is not satisfied.",
+        "consequence_if_gap": "PEPs present higher risk of corruption and bribery proceeds. Failing to apply EDD to PEPs is a direct breach of MLR 2017 Reg 35 and FCA FG17-6. The firm could unknowingly accept proceeds of corruption, leading to regulatory fines and reputational damage.",
+        "suggested_control": "Add a requirement that for PEPs (and other EDD triggers), the onboarding process must include: (a) senior management approval before account opening; (b) verification of source of wealth and source of funds; (c) enhanced ongoing monitoring (though ongoing monitoring is out of scope, the BRD should note that the compliance team must set up enhanced monitoring in the transaction monitoring system)."
+      },
+      {
+        "obligation_id": "C4",
+        "status": "gap",
+        "reasoning": "The BRD does not describe any mechanism for capturing the customer's expected transaction volume or initial deposit amount during the application process. The risk scoring factors mentioned (point 7) are screening result, credit score, and ID verification confidence. There is no mention of collecting expected activity levels or a threshold for unusual declarations. Therefore, this obligation is a gap.",
+        "consequence_if_gap": "Without capturing expected activity levels at the application stage, the firm cannot detect anomalous declarations (e.g., an unusually high initial deposit or expected transaction volume that is inconsistent with the product type or customer profile). Such anomalies may indicate layering or integration of illicit funds, and without an application-stage review mechanism they will pass through undetected. This is a breach of MLR 2017 Reg 33(1)(f) and Reg 33(4).",
+        "suggested_control": "Add a requirement to capture the customer's expected initial deposit amount and expected monthly transaction volume during the application. Define thresholds for what is considered 'unusually high' for the product type. If the declared amount exceeds the threshold, trigger a manual review before account opening."
+      },
+      {
+        "obligation_id": "C5",
+        "status": "gap",
+        "reasoning": "The BRD describes identity verification via Onfido (point 2) but does not specify what happens if the ID is detected as false or stolen. The risk scoring algorithm (point 7) may flag a low confidence score, but there is no explicit process for handling false/stolen ID detection, including escalation, decision to terminate or continue with EDD, or SAR filing. Therefore, this obligation is a gap.",
+        "consequence_if_gap": "Without a defined process, staff may handle false ID cases inconsistently — some may continue onboarding, some may reject, with no EDD or SAR filing. This creates both AML risk and operational risk.",
+        "suggested_control": "Add a requirement that if identity verification detects a false or stolen ID, the application must be rejected, the incident logged, and a Suspicious Activity Report (SAR) filed with the MLRO. If the firm decides to continue the relationship (unlikely), EDD measures must be applied."
+      },
+      {
+        "obligation_id": "C6",
+        "status": "gap",
+        "reasoning": "The BRD mentions that high-risk customers go to the compliance team for manual review (point 5), but does not specify what that manual review entails. It does not describe a general EDD package that includes senior management approval, source of wealth/funds verification, or enhanced ongoing monitoring. Therefore, the obligation is a gap.",
+        "consequence_if_gap": "EDD triggers without the full EDD package means the firm identifies high risk but does not apply the required enhanced measures. This defeats the purpose of risk-based CDD and is a direct breach of MLR 2017 Reg 33.",
+        "suggested_control": "Add a requirement that for any customer identified as high risk (including PEPs, sanctions hits, or other triggers), the manual review must include: (a) senior management approval; (b) verification of source of wealth and source of funds; (c) enhanced ongoing monitoring (to be set up in the transaction monitoring system)."
+      },
+      {
+        "obligation_id": "E1",
+        "status": "gap",
+        "reasoning": "The BRD does not describe any collection of source-of-funds information during onboarding. The risk scoring factors (point 7) are screening result, credit score, and ID verification confidence. There is no mention of asking the customer about the source of the initial deposit or expected transactions. Therefore, this obligation is a gap.",
+        "consequence_if_gap": "Without SOF information, the firm cannot assess whether the funds are consistent with the customer's profile. This undermines both the initial risk assessment and ongoing monitoring.",
+        "suggested_control": "Add a requirement to collect source-of-funds information during the application, such as employment status, salary range, and source of initial deposit (e.g., salary, savings, transfer from another account). For higher-risk customers, require documentation to verify the source."
+      },
+      {
+        "obligation_id": "E2",
+        "status": "gap",
+        "reasoning": "The BRD describes a risk scoring algorithm that routes high-risk customers to manual review by the compliance team, but does not specify that for EDD cases (PEP, high-risk country, etc.) the firm must verify source of wealth (SOW) with evidence. The BRD mentions PEP and sanctions screening as inputs to risk scoring, but no enhanced SOW verification step is described for EDD cases.",
+        "consequence_if_gap": "Without SOW verification for EDD cases, the firm cannot distinguish legitimate wealth from proceeds of crime. This is a core purpose of EDD under MLR 2017 Reg 33(3A)(c).",
+        "suggested_control": "Add a requirement that for customers flagged as high-risk (e.g., PEP, sanctions hit, or other EDD triggers), the onboarding flow must include a source of wealth verification step requiring independent evidence (e.g., payslips, tax returns, sale documents)."
+      },
+      {
+        "obligation_id": "E3",
+        "status": "gap",
+        "reasoning": "The BRD does not describe what evidence is required for SOF/SOW verification. It mentions automated checks (ID verification, screening, credit reference) but no requirement for evidence-based SOW verification for EDD cases. The BRD only implies manual review for high-risk customers but does not specify that evidence must be obtained.",
+        "consequence_if_gap": "Accepting self-declaration without evidence means a money launderer can simply declare 'salary' or 'inheritance' without proof. The EDD becomes a formality rather than a substantive control.",
+        "suggested_control": "Specify that for high-risk customers, the manual review must collect and verify source of wealth evidence (e.g., payslips, bank statements, tax returns) and document the evidence in the audit trail."
+      },
+      {
+        "obligation_id": "F1",
+        "status": "gap",
+        "reasoning": "The BRD explicitly states that ongoing monitoring is out of scope for this project (item 21: 'That's handled by the existing transaction monitoring system... out of scope'). The BRD only covers onboarding, not post-onboarding transaction monitoring or periodic CDD refresh.",
+        "consequence_if_gap": "Without ongoing monitoring, the firm cannot detect changes in customer behaviour that may indicate money laundering. The account becomes a one-time checked channel with no surveillance. This is a breach of MLR 2017 Reg 28(11).",
+        "suggested_control": "The BRD should either include a requirement to integrate with the existing transaction monitoring system (e.g., feed customer risk rating and initial profile) or explicitly state that ongoing monitoring is handled by a separate system and confirm that the onboarding system will provide necessary data feeds."
+      },
+      {
+        "obligation_id": "F2",
+        "status": "gap",
+        "reasoning": "The BRD does not describe any periodic risk-rating review or event-triggered re-assessment. The risk scoring is only performed at onboarding. No mention of refreshing risk rating over time.",
+        "consequence_if_gap": "A customer's risk level is not static. Without periodic refresh, a low-risk customer who becomes high-risk (e.g., enters a PEP list) will not be re-evaluated, missing the need for EDD.",
+        "suggested_control": "Add a requirement for periodic risk-rating review (e.g., annual for high-risk, triennial for low-risk) or event-triggered re-assessment (e.g., when sanctions list updates, or when a transaction alert fires)."
+      },
+      {
+        "obligation_id": "F3",
+        "status": "gap",
+        "reasoning": "The BRD only describes real-time screening at onboarding (item 3). There is no mention of re-screening existing customers against updated sanctions or PEP lists. The project scope is limited to onboarding, and ongoing rescreening is not addressed.",
+        "consequence_if_gap": "A customer who was clean at onboarding but is later added to a sanctions list will not be detected. The firm continues to provide services to a sanctioned person, which is a criminal offence.",
+        "suggested_control": "Add a requirement for periodic re-screening of existing customers against updated sanctions and PEP lists (e.g., daily batch screening or real-time screening on list updates)."
+      },
+      {
+        "obligation_id": "F4",
+        "status": "gap",
+        "reasoning": "The BRD does not describe any SAR escalation process. It mentions that flagged transactions go to manual review (item 5) but does not specify a path to the MLRO or NCA reporting. The project scope excludes ongoing monitoring, so no SAR process is defined.",
+        "consequence_if_gap": "Without a SAR escalation path, suspicious transactions are detected but not reported. Failing to report suspicion of money laundering is a criminal offence under POCA 2002 s330.",
+        "suggested_control": "Add a requirement that when a transaction or pattern is flagged as suspicious during manual review, there must be an escalation process to the MLRO, who decides whether to file a SAR with the NCA. This may be out of scope for the onboarding project but should be referenced as a downstream process."
+      },
+      {
+        "obligation_id": "H4",
+        "status": "gap",
+        "reasoning": "The BRD does not mention data subject rights (DSAR, erasure) at all. While DSAR may be handled by a separate system, the onboarding system must be able to export or delete data it holds. No reference to supporting DSARs or erasure.",
+        "consequence_if_gap": "Inability to respond to DSARs within statutory timeframe (1 month) is a GDPR breach. The onboarding system holds personal data and must be able to provide it upon request.",
+        "suggested_control": "Add a requirement that the system must support data subject access requests (DSAR) by enabling export of all personal data held for a customer, and support erasure where legally permissible (subject to AML retention)."
+      },
+      {
+        "obligation_id": "I1",
+        "status": "gap",
+        "reasoning": "The BRD does not reference a fair value assessment (FVA) or Consumer Duty in the context of product value. Although Emma mentions Consumer Duty for accessibility (point 8), there is no mention of assessing fees, charges, or non-price costs for fair value.",
+        "consequence_if_gap": "Without fair value consideration, the firm cannot demonstrate compliance with FCA Consumer Duty (PRIN 2A). This could result in FCA enforcement and remediation requirements.",
+        "suggested_control": "Add a requirement to conduct a fair value assessment for the account-opening process and the product, considering fees, charges, and customer effort."
+      },
+      {
+        "obligation_id": "I3",
+        "status": "gap",
+        "reasoning": "The BRD mentions logging rejection reasons (point 24) but does not describe the content or clarity of customer communications (e.g., welcome messages, decision notifications). No requirement for clear/plain language or consumer testing is mentioned.",
+        "consequence_if_gap": "Unclear communications during onboarding can confuse customers about application status, leading to complaints and potential Consumer Duty breaches.",
+        "suggested_control": "Add a requirement that all customer communications (welcome, decision, rejection) must be in clear, plain language and consumer-tested to ensure understanding."
+      }
+    ],
+    "unclear": [
+      {
+        "obligation_id": "D3",
+        "status": "unclear",
+        "reasoning": "The BRD states that if screening flags a hit, the customer goes to manual review (point 5 and point 7). However, it does not describe the escalation and decision process in detail: who reviews the match, what the decision options are (proceed with EDD, reject, file SAR), or the timeframe. The mention of 'compliance team for manual review' is vague. Therefore, it is unclear whether the BRD fully addresses this obligation.",
+        "consequence_if_gap": "Without an escalation process, positive matches may be handled inconsistently or ignored. A sanctioned individual could be onboarded because no one reviewed the alert. This is both a regulatory breach and a severe operational risk.",
+        "suggested_control": "Add a requirement that when a sanctions or PEP match is detected, the application must be routed to the compliance team (or MLRO) for review. Define decision options: reject, allow with EDD, or file SAR. Specify a maximum review timeframe (e.g., 24 hours)."
+      },
+      {
+        "obligation_id": "G2",
+        "status": "unclear",
+        "reasoning": "The BRD does not mention transaction record retention. It focuses on CDD records. Transaction records may be handled by the core banking system, but the BRD does not confirm retention of at least 5 years for transaction records.",
+        "consequence_if_gap": "Without transaction record retention, the firm cannot reconstruct transaction histories for financial crime investigations.",
+        "suggested_control": "Add a requirement that transaction records (from the core banking system) must be retained for at least 5 years from the date of the transaction, and confirm that the core banking system supports this."
+      }
+    ],
+    "not_applicable": [
+      {
+        "obligation_id": "C3",
+        "status": "not_applicable",
+        "reasoning": "The BRD explicitly states that the MVP will launch with automated KYC for UK residents only (point 14). Non-UK residents will continue to use the branch process. Therefore, the trigger 'customer is established in a high-risk third country' does not apply to this digital onboarding project, as only UK residents are onboarded digitally. The branch process is out of scope.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      }
+    ],
+    "high_risk_gaps": [
+      {
+        "obligation_id": "A5",
+        "status": "gap",
+        "reasoning": "The BRD describes a branch fallback for customers who cannot complete the digital flow (point 23), but does not explicitly state that the account will not be opened if CDD cannot be completed. There is no failure branch described for the digital process; the only fallback is to branch, which may still result in account opening. The BRD does not mention considering a SAR if CDD fails.",
+        "consequence_if_gap": "Accounts could be opened without completed CDD, directly violating MLR 2017 Reg 31. The firm would have no process to prevent onboarding of individuals whose identity cannot be verified.",
+        "suggested_control": "Add a requirement that if identity verification fails or cannot be completed, the account must not be opened and the firm must consider filing a Suspicious Activity Report (SAR)."
+      },
+      {
+        "obligation_id": "C2",
+        "status": "gap",
+        "reasoning": "The BRD mentions PEP screening (point 3: 'PEPs, sanctions, and adverse media screening') and risk scoring (point 5) that sends high-risk to compliance. However, it does not describe the specific EDD measures required for PEPs: senior management approval, source of wealth/funds verification, or enhanced ongoing monitoring. The BRD only says high-risk goes to manual review, but does not specify what that review entails. Therefore, the obligation is not satisfied.",
+        "consequence_if_gap": "PEPs present higher risk of corruption and bribery proceeds. Failing to apply EDD to PEPs is a direct breach of MLR 2017 Reg 35 and FCA FG17-6. The firm could unknowingly accept proceeds of corruption, leading to regulatory fines and reputational damage.",
+        "suggested_control": "Add a requirement that for PEPs (and other EDD triggers), the onboarding process must include: (a) senior management approval before account opening; (b) verification of source of wealth and source of funds; (c) enhanced ongoing monitoring (though ongoing monitoring is out of scope, the BRD should note that the compliance team must set up enhanced monitoring in the transaction monitoring system)."
+      },
+      {
+        "obligation_id": "C4",
+        "status": "gap",
+        "reasoning": "The BRD does not describe any mechanism for capturing the customer's expected transaction volume or initial deposit amount during the application process. The risk scoring factors mentioned (point 7) are screening result, credit score, and ID verification confidence. There is no mention of collecting expected activity levels or a threshold for unusual declarations. Therefore, this obligation is a gap.",
+        "consequence_if_gap": "Without capturing expected activity levels at the application stage, the firm cannot detect anomalous declarations (e.g., an unusually high initial deposit or expected transaction volume that is inconsistent with the product type or customer profile). Such anomalies may indicate layering or integration of illicit funds, and without an application-stage review mechanism they will pass through undetected. This is a breach of MLR 2017 Reg 33(1)(f) and Reg 33(4).",
+        "suggested_control": "Add a requirement to capture the customer's expected initial deposit amount and expected monthly transaction volume during the application. Define thresholds for what is considered 'unusually high' for the product type. If the declared amount exceeds the threshold, trigger a manual review before account opening."
+      },
+      {
+        "obligation_id": "C6",
+        "status": "gap",
+        "reasoning": "The BRD mentions that high-risk customers go to the compliance team for manual review (point 5), but does not specify what that manual review entails. It does not describe a general EDD package that includes senior management approval, source of wealth/funds verification, or enhanced ongoing monitoring. Therefore, the obligation is a gap.",
+        "consequence_if_gap": "EDD triggers without the full EDD package means the firm identifies high risk but does not apply the required enhanced measures. This defeats the purpose of risk-based CDD and is a direct breach of MLR 2017 Reg 33.",
+        "suggested_control": "Add a requirement that for any customer identified as high risk (including PEPs, sanctions hits, or other triggers), the manual review must include: (a) senior management approval; (b) verification of source of wealth and source of funds; (c) enhanced ongoing monitoring (to be set up in the transaction monitoring system)."
+      },
+      {
+        "obligation_id": "E2",
+        "status": "gap",
+        "reasoning": "The BRD describes a risk scoring algorithm that routes high-risk customers to manual review by the compliance team, but does not specify that for EDD cases (PEP, high-risk country, etc.) the firm must verify source of wealth (SOW) with evidence. The BRD mentions PEP and sanctions screening as inputs to risk scoring, but no enhanced SOW verification step is described for EDD cases.",
+        "consequence_if_gap": "Without SOW verification for EDD cases, the firm cannot distinguish legitimate wealth from proceeds of crime. This is a core purpose of EDD under MLR 2017 Reg 33(3A)(c).",
+        "suggested_control": "Add a requirement that for customers flagged as high-risk (e.g., PEP, sanctions hit, or other EDD triggers), the onboarding flow must include a source of wealth verification step requiring independent evidence (e.g., payslips, tax returns, sale documents)."
+      },
+      {
+        "obligation_id": "E3",
+        "status": "gap",
+        "reasoning": "The BRD does not describe what evidence is required for SOF/SOW verification. It mentions automated checks (ID verification, screening, credit reference) but no requirement for evidence-based SOW verification for EDD cases. The BRD only implies manual review for high-risk customers but does not specify that evidence must be obtained.",
+        "consequence_if_gap": "Accepting self-declaration without evidence means a money launderer can simply declare 'salary' or 'inheritance' without proof. The EDD becomes a formality rather than a substantive control.",
+        "suggested_control": "Specify that for high-risk customers, the manual review must collect and verify source of wealth evidence (e.g., payslips, bank statements, tax returns) and document the evidence in the audit trail."
+      },
+      {
+        "obligation_id": "F1",
+        "status": "gap",
+        "reasoning": "The BRD explicitly states that ongoing monitoring is out of scope for this project (item 21: 'That's handled by the existing transaction monitoring system... out of scope'). The BRD only covers onboarding, not post-onboarding transaction monitoring or periodic CDD refresh.",
+        "consequence_if_gap": "Without ongoing monitoring, the firm cannot detect changes in customer behaviour that may indicate money laundering. The account becomes a one-time checked channel with no surveillance. This is a breach of MLR 2017 Reg 28(11).",
+        "suggested_control": "The BRD should either include a requirement to integrate with the existing transaction monitoring system (e.g., feed customer risk rating and initial profile) or explicitly state that ongoing monitoring is handled by a separate system and confirm that the onboarding system will provide necessary data feeds."
+      },
+      {
+        "obligation_id": "F3",
+        "status": "gap",
+        "reasoning": "The BRD only describes real-time screening at onboarding (item 3). There is no mention of re-screening existing customers against updated sanctions or PEP lists. The project scope is limited to onboarding, and ongoing rescreening is not addressed.",
+        "consequence_if_gap": "A customer who was clean at onboarding but is later added to a sanctions list will not be detected. The firm continues to provide services to a sanctioned person, which is a criminal offence.",
+        "suggested_control": "Add a requirement for periodic re-screening of existing customers against updated sanctions and PEP lists (e.g., daily batch screening or real-time screening on list updates)."
+      },
+      {
+        "obligation_id": "F4",
+        "status": "gap",
+        "reasoning": "The BRD does not describe any SAR escalation process. It mentions that flagged transactions go to manual review (item 5) but does not specify a path to the MLRO or NCA reporting. The project scope excludes ongoing monitoring, so no SAR process is defined.",
+        "consequence_if_gap": "Without a SAR escalation path, suspicious transactions are detected but not reported. Failing to report suspicion of money laundering is a criminal offence under POCA 2002 s330.",
+        "suggested_control": "Add a requirement that when a transaction or pattern is flagged as suspicious during manual review, there must be an escalation process to the MLRO, who decides whether to file a SAR with the NCA. This may be out of scope for the onboarding project but should be referenced as a downstream process."
+      }
+    ],
+    "raw_results": [
+      {
+        "obligation_id": "A1",
+        "status": "satisfied",
+        "reasoning": "The BRD describes collection of identity via photo of passport/driving licence and a selfie (point 2), and verification via Onfido API which checks the document and matches to the selfie. This constitutes verification using a reliable, independent source (digital identity service).",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "A2",
+        "status": "gap",
+        "reasoning": "The BRD mentions an automated credit reference check via Experian (point 4) which could include address verification, but there is no explicit requirement to collect and verify the customer's residential address. The credit check is mentioned for risk scoring, not specifically for address verification. No step describes address collection or verification.",
+        "consequence_if_gap": "The firm cannot verify where the customer actually resides, undermining risk assessment (geographic risk factor) and making it harder to detect synthetic identities that use fabricated addresses.",
+        "suggested_control": "Add a requirement to collect the customer's residential address and verify it using the Experian credit reference check or a utility bill validation step."
+      },
+      {
+        "obligation_id": "A3",
+        "status": "satisfied",
+        "reasoning": "The BRD describes collection of a passport or driving licence (point 2), which typically includes date of birth. The selfie matching and Onfido verification process would use the date of birth from the ID document. Additionally, the credit reference check via Experian (point 4) would also use date of birth for matching. Therefore, date of birth is collected and used in verification.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "A4",
+        "status": "satisfied",
+        "reasoning": "The BRD names Onfido as the digital identity service provider (point 2) and describes liveness detection via selfie matching. This indicates anti-fraud measures. Although the BRD does not explicitly reference the UK Digital Identity Trust Framework or ISO certification, the description of document authenticity checks and biometric matching provides sufficient assurance that the service meets the standard of a reliable, independent source.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "A5",
+        "status": "gap",
+        "reasoning": "The BRD describes a branch fallback for customers who cannot complete the digital flow (point 23), but does not explicitly state that the account will not be opened if CDD cannot be completed. There is no failure branch described for the digital process; the only fallback is to branch, which may still result in account opening. The BRD does not mention considering a SAR if CDD fails.",
+        "consequence_if_gap": "Accounts could be opened without completed CDD, directly violating MLR 2017 Reg 31. The firm would have no process to prevent onboarding of individuals whose identity cannot be verified.",
+        "suggested_control": "Add a requirement that if identity verification fails or cannot be completed, the account must not be opened and the firm must consider filing a Suspicious Activity Report (SAR)."
+      },
+      {
+        "obligation_id": "A6",
+        "status": "gap",
+        "reasoning": "The BRD does not describe any collection of information on the purpose and intended nature of the business relationship. There is no question about why the customer wants the account, expected transaction volumes, or source of funds. The process focuses on identity verification and risk scoring but omits this CDD requirement.",
+        "consequence_if_gap": "Without understanding the expected nature of the relationship, the firm cannot establish a baseline for ongoing monitoring. Unusual transactions cannot be flagged because there is no 'usual' baseline.",
+        "suggested_control": "Add a requirement to collect information on the purpose and intended nature of the account (e.g., expected usage, source of funds) during the onboarding flow."
+      },
+      {
+        "obligation_id": "B1",
+        "status": "satisfied",
+        "reasoning": "The BRD describes a risk scoring algorithm (point 5) that classifies customers as low, medium, or high risk. The factors include screening results, credit score, and ID verification confidence (point 7). This constitutes a risk assessment at onboarding.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "B2",
+        "status": "gap",
+        "reasoning": "The risk scoring factors described (point 7) are limited to screening results (PEP/sanctions), credit score, and ID verification confidence. These cover customer risk (PEP) and product risk (implicitly via ID confidence), but do not explicitly include geographical risk factors (e.g., customer's country of residence) or delivery channel risk (non-face-to-face). The BRD states MVP is for UK residents only (point 14), so geographical risk may be less relevant, but the risk model should still consider it for future expansion. Additionally, delivery channel risk is not considered.",
+        "consequence_if_gap": "A single-dimension risk score may miss important risk combinations (e.g., a non-PEP customer in a high-risk country with a non-face-to-face channel). The firm's risk model would be incomplete.",
+        "suggested_control": "Add geographical risk factors (e.g., country of residence, country of birth) and delivery channel risk (non-face-to-face) to the risk scoring algorithm."
+      },
+      {
+        "obligation_id": "B3",
+        "status": "satisfied",
+        "reasoning": "The BRD describes different processing paths based on risk level (point 5): low-risk customers get instant approval (automated), medium-risk go to semi-automated review by onboarding team, high-risk go to compliance team for manual review. This demonstrates proportionate CDD measures.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "C1",
+        "status": "satisfied",
+        "reasoning": "The trigger is activated because the digital flow is non-face-to-face (no real-time human interaction described). The BRD describes compensating safeguards: liveness detection via selfie matching (point 2), multi-source verification (Onfido document check + selfie + Experian credit check), and a digital identity service (Onfido). These go beyond simply accepting a photo of an ID.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "C2",
+        "status": "gap",
+        "reasoning": "The BRD mentions PEP screening (point 3: 'PEPs, sanctions, and adverse media screening') and risk scoring (point 5) that sends high-risk to compliance. However, it does not describe the specific EDD measures required for PEPs: senior management approval, source of wealth/funds verification, or enhanced ongoing monitoring. The BRD only says high-risk goes to manual review, but does not specify what that review entails. Therefore, the obligation is not satisfied.",
+        "consequence_if_gap": "PEPs present higher risk of corruption and bribery proceeds. Failing to apply EDD to PEPs is a direct breach of MLR 2017 Reg 35 and FCA FG17-6. The firm could unknowingly accept proceeds of corruption, leading to regulatory fines and reputational damage.",
+        "suggested_control": "Add a requirement that for PEPs (and other EDD triggers), the onboarding process must include: (a) senior management approval before account opening; (b) verification of source of wealth and source of funds; (c) enhanced ongoing monitoring (though ongoing monitoring is out of scope, the BRD should note that the compliance team must set up enhanced monitoring in the transaction monitoring system)."
+      },
+      {
+        "obligation_id": "C3",
+        "status": "not_applicable",
+        "reasoning": "The BRD explicitly states that the MVP will launch with automated KYC for UK residents only (point 14). Non-UK residents will continue to use the branch process. Therefore, the trigger 'customer is established in a high-risk third country' does not apply to this digital onboarding project, as only UK residents are onboarded digitally. The branch process is out of scope.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "C4",
+        "status": "gap",
+        "reasoning": "The BRD does not describe any mechanism for capturing the customer's expected transaction volume or initial deposit amount during the application process. The risk scoring factors mentioned (point 7) are screening result, credit score, and ID verification confidence. There is no mention of collecting expected activity levels or a threshold for unusual declarations. Therefore, this obligation is a gap.",
+        "consequence_if_gap": "Without capturing expected activity levels at the application stage, the firm cannot detect anomalous declarations (e.g., an unusually high initial deposit or expected transaction volume that is inconsistent with the product type or customer profile). Such anomalies may indicate layering or integration of illicit funds, and without an application-stage review mechanism they will pass through undetected. This is a breach of MLR 2017 Reg 33(1)(f) and Reg 33(4).",
+        "suggested_control": "Add a requirement to capture the customer's expected initial deposit amount and expected monthly transaction volume during the application. Define thresholds for what is considered 'unusually high' for the product type. If the declared amount exceeds the threshold, trigger a manual review before account opening."
+      },
+      {
+        "obligation_id": "C5",
+        "status": "gap",
+        "reasoning": "The BRD describes identity verification via Onfido (point 2) but does not specify what happens if the ID is detected as false or stolen. The risk scoring algorithm (point 7) may flag a low confidence score, but there is no explicit process for handling false/stolen ID detection, including escalation, decision to terminate or continue with EDD, or SAR filing. Therefore, this obligation is a gap.",
+        "consequence_if_gap": "Without a defined process, staff may handle false ID cases inconsistently — some may continue onboarding, some may reject, with no EDD or SAR filing. This creates both AML risk and operational risk.",
+        "suggested_control": "Add a requirement that if identity verification detects a false or stolen ID, the application must be rejected, the incident logged, and a Suspicious Activity Report (SAR) filed with the MLRO. If the firm decides to continue the relationship (unlikely), EDD measures must be applied."
+      },
+      {
+        "obligation_id": "C6",
+        "status": "gap",
+        "reasoning": "The BRD mentions that high-risk customers go to the compliance team for manual review (point 5), but does not specify what that manual review entails. It does not describe a general EDD package that includes senior management approval, source of wealth/funds verification, or enhanced ongoing monitoring. Therefore, the obligation is a gap.",
+        "consequence_if_gap": "EDD triggers without the full EDD package means the firm identifies high risk but does not apply the required enhanced measures. This defeats the purpose of risk-based CDD and is a direct breach of MLR 2017 Reg 33.",
+        "suggested_control": "Add a requirement that for any customer identified as high risk (including PEPs, sanctions hits, or other triggers), the manual review must include: (a) senior management approval; (b) verification of source of wealth and source of funds; (c) enhanced ongoing monitoring (to be set up in the transaction monitoring system)."
+      },
+      {
+        "obligation_id": "D1",
+        "status": "satisfied",
+        "reasoning": "The BRD explicitly mentions 'real-time PEP and sanctions screening' (point 3 and point 25). While it does not specify the exact lists, the mention of 'sanctions screening' is sufficient to satisfy this obligation at the BRD level. The operational details can be defined later.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "D2",
+        "status": "satisfied",
+        "reasoning": "The BRD explicitly mentions 'PEP screening' (point 3 and point 25). It does not detail coverage of family members or close associates, but the obligation is satisfied at the BRD level as the requirement to screen for PEPs is stated.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "D3",
+        "status": "unclear",
+        "reasoning": "The BRD states that if screening flags a hit, the customer goes to manual review (point 5 and point 7). However, it does not describe the escalation and decision process in detail: who reviews the match, what the decision options are (proceed with EDD, reject, file SAR), or the timeframe. The mention of 'compliance team for manual review' is vague. Therefore, it is unclear whether the BRD fully addresses this obligation.",
+        "consequence_if_gap": "Without an escalation process, positive matches may be handled inconsistently or ignored. A sanctioned individual could be onboarded because no one reviewed the alert. This is both a regulatory breach and a severe operational risk.",
+        "suggested_control": "Add a requirement that when a sanctions or PEP match is detected, the application must be routed to the compliance team (or MLRO) for review. Define decision options: reject, allow with EDD, or file SAR. Specify a maximum review timeframe (e.g., 24 hours)."
+      },
+      {
+        "obligation_id": "D4",
+        "status": "satisfied",
+        "reasoning": "The BRD does not distinguish between domestic and foreign PEPs. It treats all PEPs as a risk factor that sends the customer to manual review (point 7). Since it does not exempt domestic PEPs from EDD, this conservative approach satisfies the obligation.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "E1",
+        "status": "gap",
+        "reasoning": "The BRD does not describe any collection of source-of-funds information during onboarding. The risk scoring factors (point 7) are screening result, credit score, and ID verification confidence. There is no mention of asking the customer about the source of the initial deposit or expected transactions. Therefore, this obligation is a gap.",
+        "consequence_if_gap": "Without SOF information, the firm cannot assess whether the funds are consistent with the customer's profile. This undermines both the initial risk assessment and ongoing monitoring.",
+        "suggested_control": "Add a requirement to collect source-of-funds information during the application, such as employment status, salary range, and source of initial deposit (e.g., salary, savings, transfer from another account). For higher-risk customers, require documentation to verify the source."
+      },
+      {
+        "obligation_id": "E2",
+        "status": "gap",
+        "reasoning": "The BRD describes a risk scoring algorithm that routes high-risk customers to manual review by the compliance team, but does not specify that for EDD cases (PEP, high-risk country, etc.) the firm must verify source of wealth (SOW) with evidence. The BRD mentions PEP and sanctions screening as inputs to risk scoring, but no enhanced SOW verification step is described for EDD cases.",
+        "consequence_if_gap": "Without SOW verification for EDD cases, the firm cannot distinguish legitimate wealth from proceeds of crime. This is a core purpose of EDD under MLR 2017 Reg 33(3A)(c).",
+        "suggested_control": "Add a requirement that for customers flagged as high-risk (e.g., PEP, sanctions hit, or other EDD triggers), the onboarding flow must include a source of wealth verification step requiring independent evidence (e.g., payslips, tax returns, sale documents)."
+      },
+      {
+        "obligation_id": "E3",
+        "status": "gap",
+        "reasoning": "The BRD does not describe what evidence is required for SOF/SOW verification. It mentions automated checks (ID verification, screening, credit reference) but no requirement for evidence-based SOW verification for EDD cases. The BRD only implies manual review for high-risk customers but does not specify that evidence must be obtained.",
+        "consequence_if_gap": "Accepting self-declaration without evidence means a money launderer can simply declare 'salary' or 'inheritance' without proof. The EDD becomes a formality rather than a substantive control.",
+        "suggested_control": "Specify that for high-risk customers, the manual review must collect and verify source of wealth evidence (e.g., payslips, bank statements, tax returns) and document the evidence in the audit trail."
+      },
+      {
+        "obligation_id": "F1",
+        "status": "gap",
+        "reasoning": "The BRD explicitly states that ongoing monitoring is out of scope for this project (item 21: 'That's handled by the existing transaction monitoring system... out of scope'). The BRD only covers onboarding, not post-onboarding transaction monitoring or periodic CDD refresh.",
+        "consequence_if_gap": "Without ongoing monitoring, the firm cannot detect changes in customer behaviour that may indicate money laundering. The account becomes a one-time checked channel with no surveillance. This is a breach of MLR 2017 Reg 28(11).",
+        "suggested_control": "The BRD should either include a requirement to integrate with the existing transaction monitoring system (e.g., feed customer risk rating and initial profile) or explicitly state that ongoing monitoring is handled by a separate system and confirm that the onboarding system will provide necessary data feeds."
+      },
+      {
+        "obligation_id": "F2",
+        "status": "gap",
+        "reasoning": "The BRD does not describe any periodic risk-rating review or event-triggered re-assessment. The risk scoring is only performed at onboarding. No mention of refreshing risk rating over time.",
+        "consequence_if_gap": "A customer's risk level is not static. Without periodic refresh, a low-risk customer who becomes high-risk (e.g., enters a PEP list) will not be re-evaluated, missing the need for EDD.",
+        "suggested_control": "Add a requirement for periodic risk-rating review (e.g., annual for high-risk, triennial for low-risk) or event-triggered re-assessment (e.g., when sanctions list updates, or when a transaction alert fires)."
+      },
+      {
+        "obligation_id": "F3",
+        "status": "gap",
+        "reasoning": "The BRD only describes real-time screening at onboarding (item 3). There is no mention of re-screening existing customers against updated sanctions or PEP lists. The project scope is limited to onboarding, and ongoing rescreening is not addressed.",
+        "consequence_if_gap": "A customer who was clean at onboarding but is later added to a sanctions list will not be detected. The firm continues to provide services to a sanctioned person, which is a criminal offence.",
+        "suggested_control": "Add a requirement for periodic re-screening of existing customers against updated sanctions and PEP lists (e.g., daily batch screening or real-time screening on list updates)."
+      },
+      {
+        "obligation_id": "F4",
+        "status": "gap",
+        "reasoning": "The BRD does not describe any SAR escalation process. It mentions that flagged transactions go to manual review (item 5) but does not specify a path to the MLRO or NCA reporting. The project scope excludes ongoing monitoring, so no SAR process is defined.",
+        "consequence_if_gap": "Without a SAR escalation path, suspicious transactions are detected but not reported. Failing to report suspicion of money laundering is a criminal offence under POCA 2002 s330.",
+        "suggested_control": "Add a requirement that when a transaction or pattern is flagged as suspicious during manual review, there must be an escalation process to the MLRO, who decides whether to file a SAR with the NCA. This may be out of scope for the onboarding project but should be referenced as a downstream process."
+      },
+      {
+        "obligation_id": "G1",
+        "status": "satisfied",
+        "reasoning": "The BRD explicitly states a 5-year data retention policy for AML requirements (item 10: 'MLR 2017 requires 5 years post-relationship retention for CDD records. So our retention policy should be 5 years'). This satisfies the obligation.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "G2",
+        "status": "unclear",
+        "reasoning": "The BRD does not mention transaction record retention. It focuses on CDD records. Transaction records may be handled by the core banking system, but the BRD does not confirm retention of at least 5 years for transaction records.",
+        "consequence_if_gap": "Without transaction record retention, the firm cannot reconstruct transaction histories for financial crime investigations.",
+        "suggested_control": "Add a requirement that transaction records (from the core banking system) must be retained for at least 5 years from the date of the transaction, and confirm that the core banking system supports this."
+      },
+      {
+        "obligation_id": "G3",
+        "status": "satisfied",
+        "reasoning": "The BRD explicitly requires an audit trail for all KYC decisions (item 18: 'We must maintain an audit trail for all KYC decisions. Every automated decision needs to be logged with the timestamp, the input data, and the decision rationale.'). This satisfies the obligation.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "H1",
+        "status": "partial_gap",
+        "reasoning": "The BRD mentions GDPR compliance (item 9) and data retention, but does not explicitly state the lawful basis for processing personal data. For biometric data (selfie matching via Onfido), the BRD does not address the Article 9 condition for special category data. The BRD implies processing is for AML legal obligation, but does not explicitly cite Article 6(1)(c) or Article 9 condition.",
+        "consequence_if_gap": "Processing personal data without a lawful basis is a breach of UK GDPR. Biometric data without an Article 9 condition is a higher-risk breach (potential £17.5m or 4% turnover fine).",
+        "suggested_control": "Add a requirement that the lawful basis for processing personal data is 'legal obligation' under Article 6(1)(c) UK GDPR for CDD/AML purposes, and for biometric data (selfie), the condition under Article 9 (e.g., substantial public interest for AML) must be documented and implemented."
+      },
+      {
+        "obligation_id": "H2",
+        "status": "satisfied",
+        "reasoning": "The BRD describes collecting only CDD-relevant data: photo ID (passport/driving licence), selfie, credit reference data, and screening data. No unnecessary fields like social media profiles or detailed employment history are mentioned. Data minimisation is implicitly followed.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "H3",
+        "status": "satisfied",
+        "reasoning": "The BRD explicitly discusses retention: Emma corrects James that CDD data must be retained for 5 years per MLR 2017 (point 10). The BRD also mentions retaining rejection records for the retention period (point 24). This satisfies the obligation.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "H4",
+        "status": "gap",
+        "reasoning": "The BRD does not mention data subject rights (DSAR, erasure) at all. While DSAR may be handled by a separate system, the onboarding system must be able to export or delete data it holds. No reference to supporting DSARs or erasure.",
+        "consequence_if_gap": "Inability to respond to DSARs within statutory timeframe (1 month) is a GDPR breach. The onboarding system holds personal data and must be able to provide it upon request.",
+        "suggested_control": "Add a requirement that the system must support data subject access requests (DSAR) by enabling export of all personal data held for a customer, and support erasure where legally permissible (subject to AML retention)."
+      },
+      {
+        "obligation_id": "I1",
+        "status": "gap",
+        "reasoning": "The BRD does not reference a fair value assessment (FVA) or Consumer Duty in the context of product value. Although Emma mentions Consumer Duty for accessibility (point 8), there is no mention of assessing fees, charges, or non-price costs for fair value.",
+        "consequence_if_gap": "Without fair value consideration, the firm cannot demonstrate compliance with FCA Consumer Duty (PRIN 2A). This could result in FCA enforcement and remediation requirements.",
+        "suggested_control": "Add a requirement to conduct a fair value assessment for the account-opening process and the product, considering fees, charges, and customer effort."
+      },
+      {
+        "obligation_id": "I2",
+        "status": "satisfied",
+        "reasoning": "The BRD addresses multiple harm-prevention measures: (a) WCAG 2.1 AA accessibility (point 8); (b) branch fallback for customers who cannot complete digital flow (point 22-23); (c) manual review for medium/high-risk customers reduces incorrect rejections (point 5,7). This satisfies the obligation.",
+        "consequence_if_gap": "N/A",
+        "suggested_control": "N/A"
+      },
+      {
+        "obligation_id": "I3",
+        "status": "gap",
+        "reasoning": "The BRD mentions logging rejection reasons (point 24) but does not describe the content or clarity of customer communications (e.g., welcome messages, decision notifications). No requirement for clear/plain language or consumer testing is mentioned.",
+        "consequence_if_gap": "Unclear communications during onboarding can confuse customers about application status, leading to complaints and potential Consumer Duty breaches.",
+        "suggested_control": "Add a requirement that all customer communications (welcome, decision, rejection) must be in clear, plain language and consumer-tested to ensure understanding."
+      }
+    ],
+    "summary": {
+      "total": 36,
+      "satisfied": 14,
+      "gaps": 18,
+      "unclear": 2,
+      "not_applicable": 1,
+      "high_risk_gaps": 9
+    }
+  },
+  "rtm_result": {
+    "rtm_entries": [
+      {
+        "req_id": "REQ-001",
+        "title": "Automated Identity Verification via Onfido",
+        "business_need": "Enable remote identity verification to meet KYC requirements and reduce manual effort.",
+        "depends_on": [],
+        "test_cases": [
+          "Verify that a valid passport photo and selfie result in a successful match.",
+          "Verify that an invalid document or mismatched selfie returns a failure."
+        ],
+        "acceptance_criteria": [
+          "The system shall accept a photo of a passport or driving licence and a selfie.",
+          "The system shall return a verification result (pass/fail) within 30 seconds."
+        ]
+      },
+      {
+        "req_id": "REQ-002",
+        "title": "Real-Time PEP and Sanctions Screening",
+        "business_need": "Comply with AML regulations by screening customers against PEP and sanctions lists.",
+        "depends_on": [],
+        "test_cases": [
+          "Verify that a customer on a sanctions list is flagged.",
+          "Verify that a non-PEP customer passes screening."
+        ],
+        "acceptance_criteria": [
+          "The system shall perform screening in real-time during account opening.",
+          "The system shall return a screening result (pass/fail) within 10 seconds."
+        ]
+      },
+      {
+        "req_id": "REQ-003",
+        "title": "Automated Credit Reference Check via Experian",
+        "business_need": "Assess creditworthiness as part of risk assessment.",
+        "depends_on": [],
+        "test_cases": [
+          "Verify that a customer with good credit score returns a positive result.",
+          "Verify that a customer with poor credit score returns a negative result."
+        ],
+        "acceptance_criteria": [
+          "The system shall retrieve credit score from Experian API.",
+          "The system shall return the credit score within 15 seconds."
+        ]
+      },
+      {
+        "req_id": "REQ-004",
+        "title": "Risk Scoring Algorithm",
+        "business_need": "Automate risk categorization to streamline onboarding decisions.",
+        "depends_on": [
+          "REQ-001",
+          "REQ-002",
+          "REQ-003"
+        ],
+        "test_cases": [
+          "Verify that a customer with high ID confidence, no screening hits, and good credit is classified as low risk.",
+          "Verify that a customer with medium ID confidence and no screening hits is classified as medium risk."
+        ],
+        "acceptance_criteria": [
+          "The algorithm shall categorize customers as low, medium, or high risk.",
+          "Low-risk customers shall be automatically approved."
+        ]
+      },
+      {
+        "req_id": "REQ-005",
+        "title": "Automated Account Creation and Virtual Card Issuance for Low-Risk Customers",
+        "business_need": "Provide instant account opening and card issuance for low-risk customers to improve customer experience.",
+        "depends_on": [
+          "REQ-004",
+          "REQ-007"
+        ],
+        "test_cases": [
+          "Verify that a low-risk customer receives an account number and virtual card immediately after approval.",
+          "Verify that a physical card is dispatched within 2 working days."
+        ],
+        "acceptance_criteria": [
+          "Account creation shall be triggered automatically for low-risk customers.",
+          "Virtual card shall be issued within 1 minute of account creation."
+        ]
+      },
+      {
+        "req_id": "REQ-006",
+        "title": "Integration with Salesforce CRM",
+        "business_need": "Sync customer data and onboarding status with CRM for sales and service teams.",
+        "depends_on": [],
+        "test_cases": [
+          "Verify that customer data created during onboarding appears in Salesforce.",
+          "Verify that status updates (e.g., approved, rejected) are reflected in Salesforce."
+        ],
+        "acceptance_criteria": [
+          "Customer data shall be synced to Salesforce within 5 minutes of onboarding completion.",
+          "Onboarding status shall be updated in Salesforce in real-time."
+        ]
+      },
+      {
+        "req_id": "REQ-007",
+        "title": "Integration with Core Banking System",
+        "business_need": "Enable account creation and data exchange with the core banking system.",
+        "depends_on": [],
+        "test_cases": [
+          "Verify that an account is created in the core banking system when a customer is approved.",
+          "Verify that account details are returned to the onboarding system."
+        ],
+        "acceptance_criteria": [
+          "Account creation request shall be sent to core banking system within 10 seconds of approval.",
+          "Core banking system shall confirm account creation within 30 seconds."
+        ]
+      },
+      {
+        "req_id": "REQ-008",
+        "title": "WCAG 2.1 AA Accessibility Compliance",
+        "business_need": "Ensure the application is accessible to users with disabilities, meeting legal requirements.",
+        "depends_on": [],
+        "test_cases": [
+          "Verify that all interactive elements are keyboard navigable.",
+          "Verify that screen reader can read all content correctly."
+        ],
+        "acceptance_criteria": [
+          "The application shall pass WCAG 2.1 AA automated checks.",
+          "Manual audit shall confirm compliance with WCAG 2.1 AA."
+        ]
+      },
+      {
+        "req_id": "REQ-009",
+        "title": "Data Retention Policy for CDD Records (5 Years)",
+        "business_need": "Comply with MLR 2017 requirements for retaining CDD records.",
+        "depends_on": [],
+        "test_cases": [
+          "Verify that CDD records are retained for 5 years after relationship ends.",
+          "Verify that marketing data is deleted after 6 months."
+        ],
+        "acceptance_criteria": [
+          "The system shall automatically delete CDD records after 5 years.",
+          "The system shall automatically delete marketing data after 6 months."
+        ]
+      },
+      {
+        "req_id": "REQ-010",
+        "title": "Full Audit Trail for KYC Decisions",
+        "business_need": "Provide a complete audit trail for regulatory compliance and dispute resolution.",
+        "depends_on": [
+          "REQ-004"
+        ],
+        "test_cases": [
+          "Verify that every KYC decision is logged with timestamp, input data, and decision rationale.",
+          "Verify that audit logs cannot be modified."
+        ],
+        "acceptance_criteria": [
+          "Each decision shall have an immutable audit record.",
+          "Audit logs shall be retained for the required retention period."
+        ]
+      },
+      {
+        "req_id": "REQ-011",
+        "title": "Branch Fallback for Digital Onboarding Failures",
+        "business_need": "Provide alternative onboarding channel for customers who cannot complete digital process.",
+        "depends_on": [],
+        "test_cases": [
+          "Verify that a customer who fails digital verification can be redirected to branch.",
+          "Verify that branch staff can access screening tools."
+        ],
+        "acceptance_criteria": [
+          "The system shall provide a branch referral option for failed digital onboarding.",
+          "Branch staff shall have access to the same screening APIs."
+        ]
+      },
+      {
+        "req_id": "REQ-012",
+        "title": "Rejection Logging and Record Keeping",
+        "business_need": "Maintain records of rejected applications for regulatory compliance.",
+        "depends_on": [],
+        "test_cases": [
+          "Verify that rejected applications are logged with reason.",
+          "Verify that rejection records are retained for the required period."
+        ],
+        "acceptance_criteria": [
+          "Each rejection shall be logged with reason and timestamp.",
+          "Rejection records shall be retained per data retention policy."
+        ]
+      },
+      {
+        "req_id": "REQ-013",
+        "title": "System Uptime 99.9% During Business Hours",
+        "business_need": "Ensure high availability for customers during business hours.",
+        "depends_on": [],
+        "test_cases": [
+          "Monitor system uptime over a month to verify 99.9% availability."
+        ],
+        "acceptance_criteria": [
+          "System uptime shall be at least 99.9% during business hours (8am-8pm)."
+        ]
+      },
+      {
+        "req_id": "REQ-014",
+        "title": "Handle 10,000 Concurrent Applications",
+        "business_need": "Support peak load without performance degradation.",
+        "depends_on": [],
+        "test_cases": [
+          "Simulate 10,000 concurrent users and measure response times."
+        ],
+        "acceptance_criteria": [
+          "The system shall handle 10,000 concurrent applications with response time under 5 seconds."
+        ]
+      },
+      {
+        "req_id": "REQ-015",
+        "title": "Fallback Mechanism for Onfido API Outage",
+        "business_need": "Ensure continuity of service when Onfido API is unavailable.",
+        "depends_on": [
+          "REQ-001"
+        ],
+        "test_cases": [
+          "Simulate Onfido API outage and verify that applications are queued.",
+          "Verify that queued applications are processed when API is restored."
+        ],
+        "acceptance_criteria": [
+          "When Onfido API is down, applications shall be queued with status 'pending verification'.",
+          "Queued applications shall be automatically processed when API is back online."
+        ]
+      },
+      {
+        "req_id": "REQ-016",
+        "title": "MVP Scope: UK Residents Only",
+        "business_need": "Limit MVP scope to UK residents to reduce complexity.",
+        "depends_on": [],
+        "test_cases": [
+          "Verify that a UK resident can complete onboarding.",
+          "Verify that a non-UK resident is redirected to branch process."
+        ],
+        "acceptance_criteria": [
+          "Only UK residents shall be allowed to use digital onboarding.",
+          "Non-UK residents shall see a message directing them to branch."
+        ]
+      }
+    ],
+    "dependency_graph": [
+      {
+        "source": "REQ-004",
+        "target": "REQ-001",
+        "type": "depends_on"
+      },
+      {
+        "source": "REQ-004",
+        "target": "REQ-002",
+        "type": "depends_on"
+      },
+      {
+        "source": "REQ-004",
+        "target": "REQ-003",
+        "type": "depends_on"
+      },
+      {
+        "source": "REQ-005",
+        "target": "REQ-004",
+        "type": "depends_on"
+      },
+      {
+        "source": "REQ-005",
+        "target": "REQ-007",
+        "type": "depends_on"
+      },
+      {
+        "source": "REQ-010",
+        "target": "REQ-004",
+        "type": "depends_on"
+      },
+      {
+        "source": "REQ-015",
+        "target": "REQ-001",
+        "type": "depends_on"
+      }
+    ]
+  },
+  "gap_result": {
+    "gaps": [
+      {
+        "gap_id": "GAP-001",
+        "description": "Manual identity verification in As-Is process causes delays and drop-offs; To-Be automates via Onfido API.",
+        "gap_type": "Inefficiency",
+        "impact": "High",
+        "recommendation": "Implement Onfido API for automated identity verification to reduce time and drop-off rate."
+      },
+      {
+        "gap_id": "GAP-002",
+        "description": "Manual KYC checks (PEP, sanctions, adverse media) take 2-3 days; To-Be automates via screening API.",
+        "gap_type": "Bottleneck",
+        "impact": "High",
+        "recommendation": "Integrate a real-time screening API for PEP, sanctions, and adverse media checks."
+      },
+      {
+        "gap_id": "GAP-003",
+        "description": "No risk scoring in As-Is; decisions are subjective. To-Be uses automated risk scoring.",
+        "gap_type": "Missing Capability",
+        "impact": "High",
+        "recommendation": "Develop and implement a risk scoring algorithm based on screening results and credit score."
+      },
+      {
+        "gap_id": "GAP-004",
+        "description": "Manual account creation in core banking system in As-Is; To-Be automates for low-risk.",
+        "gap_type": "Inefficiency",
+        "impact": "Medium",
+        "recommendation": "Automate account creation for low-risk applications via API integration with core banking system."
+      },
+      {
+        "gap_id": "GAP-005",
+        "description": "Debit card issuance takes 5-7 days in As-Is; To-Be issues virtual card instantly and physical card in 2 days.",
+        "gap_type": "Inefficiency",
+        "impact": "Medium",
+        "recommendation": "Implement virtual card issuance and expedite physical card dispatch through automated card issuance system."
+      },
+      {
+        "gap_id": "GAP-006",
+        "description": "No real-time customer status updates in As-Is; To-Be provides instant notifications.",
+        "gap_type": "Missing Capability",
+        "impact": "Medium",
+        "recommendation": "Integrate automated customer communication via email/SMS and in-app status updates."
+      },
+      {
+        "gap_id": "GAP-007",
+        "description": "Audit trail in As-Is is poor (emails/spreadsheets); To-Be logs all decisions with timestamp and rationale.",
+        "gap_type": "Missing Capability",
+        "impact": "High",
+        "recommendation": "Implement automated audit logging for all KYC decisions and actions."
+      },
+      {
+        "gap_id": "GAP-008",
+        "description": "Branch staff manually review documents in As-Is; To-Be eliminates this step for digital applications.",
+        "gap_type": "Redundant Step",
+        "impact": "Medium",
+        "recommendation": "Remove manual document review for digital applications; rely on automated verification."
+      },
+      {
+        "gap_id": "GAP-009",
+        "description": "Compliance team manually reviews flagged cases in As-Is; To-Be automates low-risk and semi-automates medium-risk.",
+        "gap_type": "Bottleneck",
+        "impact": "High",
+        "recommendation": "Define clear criteria for manual compliance review to handle only high-risk cases."
+      },
+      {
+        "gap_id": "GAP-010",
+        "description": "No onboarding analytics dashboard in As-Is; To-Be includes one for management.",
+        "gap_type": "Missing Capability",
+        "impact": "Low",
+        "recommendation": "Develop an analytics dashboard to monitor application volumes, approval rates, and drop-off points."
+      }
+    ],
+    "metrics": {
+      "as_is_time": "5-7 working days",
+      "to_be_time": "<5 minutes for low-risk, <4 hours for medium-risk, manual for high-risk",
+      "fte_change": "From 3 FTE to 1 FTE (monitoring only)",
+      "drop_off_rate_change": "From 40% to <15%"
+    },
+    "risks": [
+      "Integration failure with Onfido, screening API, or Experian causing delays",
+      "False positives/negatives in automated screening leading to compliance breaches",
+      "Customer resistance to digital-only process (accessibility issues)",
+      "Data privacy concerns with biometric data (Onfido)",
+      "System downtime affecting real-time processing",
+      "Regulatory scrutiny if risk scoring model is not transparent or fair"
+    ],
+    "priority_matrix": [
+      {
+        "gap_id": "GAP-001",
+        "impact": "High",
+        "difficulty": "Medium"
+      },
+      {
+        "gap_id": "GAP-002",
+        "impact": "High",
+        "difficulty": "Medium"
+      },
+      {
+        "gap_id": "GAP-003",
+        "impact": "High",
+        "difficulty": "High"
+      },
+      {
+        "gap_id": "GAP-004",
+        "impact": "Medium",
+        "difficulty": "Medium"
+      },
+      {
+        "gap_id": "GAP-005",
+        "impact": "Medium",
+        "difficulty": "Low"
+      },
+      {
+        "gap_id": "GAP-006",
+        "impact": "Medium",
+        "difficulty": "Low"
+      },
+      {
+        "gap_id": "GAP-007",
+        "impact": "High",
+        "difficulty": "Medium"
+      },
+      {
+        "gap_id": "GAP-008",
+        "impact": "Medium",
+        "difficulty": "Low"
+      },
+      {
+        "gap_id": "GAP-009",
+        "impact": "High",
+        "difficulty": "Medium"
+      },
+      {
+        "gap_id": "GAP-010",
+        "impact": "Low",
+        "difficulty": "Low"
+      }
+    ]
+  },
+  "as_is_text": "================================================================================\nAS-IS PROCESS: Current Account Opening (Manual KYC)\n================================================================================\n\nPROCESS OVERVIEW:\nThe current account opening process for individual retail customers relies\nheavily on manual review. Customers can start the process in-branch or via\nthe mobile app, but identity verification and KYC checks are performed\nmanually by the KYC team.\n\n--------------------------------------------------------------------------------\n\nSTEP-BY-STEP PROCESS:\n\nStep 1: Customer visits branch or downloads the mobile app.\n\nStep 2: Customer fills in the application form (paper form in branch,\n        digital form in the app). Information collected:\n        - Full legal name\n        - Date of birth\n        - Residential address\n        - Employment status and employer name\n        - Expected account usage (salary, savings, etc.)\n        - Source of initial deposit\n\nStep 3: Customer uploads ID documents (passport or driving licence) via\n        the app, or provides them in person at the branch.\n\nStep 4: Branch staff or onboarding team manually review the uploaded\n        documents. This includes:\n        - Checking document authenticity (visual inspection)\n        - Matching the photo on the document to the customer\n          (in-branch only; not possible for app submissions)\n        - Checking the name and date of birth match the application form\n\nStep 5: KYC team performs manual checks (2-3 days). This includes:\n        - Credit reference check via Experian (automated API call)\n        - PEP and sanctions screening (manual query of screening tool)\n        - Adverse media check (manual web search for high-profile cases)\n\nStep 6: Compliance team review for cases flagged by the KYC team\n        (1-2 days). This applies to:\n        - PEP matches\n        - Sanctions matches (rare — usually result in rejection)\n        - High-value initial deposits\n        - Unusual application patterns\n\nStep 7: Account creation in the core banking system (manual entry by\n        back-office team).\n\nStep 8: Debit card issuance (5-7 days via post).\n\nStep 9: Welcome pack sent via post.\n\n--------------------------------------------------------------------------------\n\nPAIN POINTS:\n- Total time: 5-7 working days\n- 40% drop-off at the document upload stage\n- High manual effort (3 FTE in KYC team)\n- Inconsistent decision-making (different staff apply different standards)\n- Poor audit trail (decisions logged in emails and spreadsheets, not\n  in a structured system)\n- No real-time feedback to customer on application status\n- Branch staff spend significant time on document review that could\n  be automated\n\n--------------------------------------------------------------------------------\n\nCURRENT RISK CONTROLS:\n- PEP screening: performed at onboarding only, not refreshed\n- Sanctions screening: performed at onboarding only, not refreshed\n- Transaction monitoring: separate system in compliance team\n  (post-onboarding, not part of this process)\n- Risk rating: implicit (KYC team uses judgement, no formal scoring)\n- Record retention: CDD documents filed in document management system,\n  retained for 5 years per AML policy\n\n--------------------------------------------------------------------------------\nEND OF AS-IS PROCESS DOCUMENT\n================================================================================\n",
+  "to_be_text": "================================================================================\nTO-BE PROCESS: Enhanced Digital Account Opening (Automated KYC)\n================================================================================\n\nPROCESS OVERVIEW:\nThe enhanced digital account opening process replaces manual KYC checks\nwith automated identity verification and real-time screening. The goal is\nto reduce account opening time to under 5 minutes for low-risk customers\nwhile maintaining regulatory compliance.\n\n--------------------------------------------------------------------------------\n\nSTEP-BY-STEP PROCESS:\n\nStep 1: Customer downloads the mobile app or visits the website.\n\nStep 2: Identity verification via Onfido API.\n        - Customer uploads a photo of their passport or driving licence\n        - Customer takes a selfie\n        - Onfido checks the document authenticity and matches the selfie\n          to the document photo\n\nStep 3: Real-time KYC check via screening API.\n        - PEP screening (politically exposed persons)\n        - Sanctions screening (OFSI, UN, EU consolidated lists)\n        - Adverse media screening\n\nStep 4: Automated credit reference check via Experian API.\n        - Credit score retrieved in real-time\n\nStep 5: Risk scoring algorithm processes all inputs and assigns a\n        risk level:\n        - Risk factors: PEP/sanctions screening result, credit score,\n          Onfido confidence score\n        - Output: Low / Medium / High\n\nStep 6: Processing based on risk level:\n        - LOW RISK: Instant approval (< 5 minutes)\n          → Account created automatically in core banking system\n          → Virtual debit card issued immediately\n          → Physical card dispatched within 2 working days\n\n        - MEDIUM RISK: Semi-automated review (< 4 hours)\n          → Application routed to onboarding team for review\n          → Onboarding team reviews screening results and makes a decision\n          → If approved, account created and card issued\n\n        - HIGH RISK: Manual compliance review\n          → Application routed to compliance team\n          → Compliance officer reviews and makes a decision\n          → If approved, account created with enhanced monitoring flag\n\nStep 7: Account creation in core banking system (automated for low-risk,\n        manual trigger for medium/high-risk).\n\nStep 8: Virtual debit card issued immediately (for low-risk approvals).\n\nStep 9: Physical card issued within 2 working days.\n\nStep 10: Onboarding analytics dashboard for management — shows daily\n         application volumes, approval rates, drop-off points, risk\n         distribution.\n\n--------------------------------------------------------------------------------\n\nCUSTOMER COMMUNICATIONS:\n- Application received: instant confirmation email/SMS\n- Verification in progress: status update on app\n- Decision (approved/rejected): notification with reason\n- Account opened: welcome email with account details\n- Card dispatched: notification with tracking\n\n--------------------------------------------------------------------------------\n\nACCESSIBILITY:\n- Mobile app meets WCAG 2.1 AA standards\n- Web fallback available for customers without smartphones\n- Branch fallback available for customers who cannot complete digital flow\n\n--------------------------------------------------------------------------------\n\nDATA RETENTION:\n- CDD records retained for 5 years post-relationship (MLR 2017 Reg 40)\n- Transaction records retained for 5 years\n- Marketing data retained for 6 months post-relationship\n- Audit trail: all KYC decisions logged with timestamp, input data,\n  and decision rationale\n\n--------------------------------------------------------------------------------\n\nINTEGRATIONS:\n- Onfido API (identity verification)\n- Screening API (PEP/sanctions/adverse media — provider TBD)\n- Experian API (credit reference)\n- Salesforce CRM (customer record)\n- Core banking system (account creation)\n- Card issuance system (virtual and physical cards)\n\n--------------------------------------------------------------------------------\n\nSCOPE EXCLUSIONS:\n- Ongoing transaction monitoring (handled by existing compliance system)\n- Post-onboarding risk rating refresh\n- Periodic CDD re-verification\n- Non-UK resident onboarding (Phase 2)\n\n--------------------------------------------------------------------------------\n\nEXPECTED BENEFITS:\n- Time: < 5 minutes for low-risk customers (from 5-7 days)\n- Drop-off rate: reduce from 40% to < 15%\n- FTE reduction: from 3 to 1 (monitoring only)\n- 100% audit trail via automated logging\n- Consistent decision-making via standardised risk scoring\n- Real-time customer status updates\n\n--------------------------------------------------------------------------------\nEND OF TO-BE PROCESS DOCUMENT\n================================================================================\n",
+  "usage": {
+    "model": "deepseek-chat",
+    "prompt_tokens": 24550,
+    "completion_tokens": 11258,
+    "total_tokens": 35808,
+    "calls": 7,
+    "cost_cny": {
+      "input_cost": 0.02455,
+      "output_cost": 0.022516,
+      "total_cost": 0.047066
+    }
+  }
+}

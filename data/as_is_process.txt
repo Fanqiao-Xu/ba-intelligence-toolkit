@@ -1,0 +1,81 @@
+================================================================================
+AS-IS PROCESS: Current Account Opening (Manual KYC)
+================================================================================
+
+PROCESS OVERVIEW:
+The current account opening process for individual retail customers relies
+heavily on manual review. Customers can start the process in-branch or via
+the mobile app, but identity verification and KYC checks are performed
+manually by the KYC team.
+
+--------------------------------------------------------------------------------
+
+STEP-BY-STEP PROCESS:
+
+Step 1: Customer visits branch or downloads the mobile app.
+
+Step 2: Customer fills in the application form (paper form in branch,
+        digital form in the app). Information collected:
+        - Full legal name
+        - Date of birth
+        - Residential address
+        - Employment status and employer name
+        - Expected account usage (salary, savings, etc.)
+        - Source of initial deposit
+
+Step 3: Customer uploads ID documents (passport or driving licence) via
+        the app, or provides them in person at the branch.
+
+Step 4: Branch staff or onboarding team manually review the uploaded
+        documents. This includes:
+        - Checking document authenticity (visual inspection)
+        - Matching the photo on the document to the customer
+          (in-branch only; not possible for app submissions)
+        - Checking the name and date of birth match the application form
+
+Step 5: KYC team performs manual checks (2-3 days). This includes:
+        - Credit reference check via Experian (automated API call)
+        - PEP and sanctions screening (manual query of screening tool)
+        - Adverse media check (manual web search for high-profile cases)
+
+Step 6: Compliance team review for cases flagged by the KYC team
+        (1-2 days). This applies to:
+        - PEP matches
+        - Sanctions matches (rare — usually result in rejection)
+        - High-value initial deposits
+        - Unusual application patterns
+
+Step 7: Account creation in the core banking system (manual entry by
+        back-office team).
+
+Step 8: Debit card issuance (5-7 days via post).
+
+Step 9: Welcome pack sent via post.
+
+--------------------------------------------------------------------------------
+
+PAIN POINTS:
+- Total time: 5-7 working days
+- 40% drop-off at the document upload stage
+- High manual effort (3 FTE in KYC team)
+- Inconsistent decision-making (different staff apply different standards)
+- Poor audit trail (decisions logged in emails and spreadsheets, not
+  in a structured system)
+- No real-time feedback to customer on application status
+- Branch staff spend significant time on document review that could
+  be automated
+
+--------------------------------------------------------------------------------
+
+CURRENT RISK CONTROLS:
+- PEP screening: performed at onboarding only, not refreshed
+- Sanctions screening: performed at onboarding only, not refreshed
+- Transaction monitoring: separate system in compliance team
+  (post-onboarding, not part of this process)
+- Risk rating: implicit (KYC team uses judgement, no formal scoring)
+- Record retention: CDD documents filed in document management system,
+  retained for 5 years per AML policy
+
+--------------------------------------------------------------------------------
+END OF AS-IS PROCESS DOCUMENT
+================================================================================

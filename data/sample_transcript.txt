@@ -1,0 +1,121 @@
+================================================================================
+MEETING TRANSCRIPT — Digital Account Opening Enhancement Project
+================================================================================
+Date: 15th March 2024
+Attendees: Sarah Chen (Product Owner), James Okafor (Business Analyst),
+           Emma Wright (Compliance Officer), David Patel (Tech Lead)
+Project Sponsor: Retail Banking Division
+
+--------------------------------------------------------------------------------
+AGENDA: Define requirements for Phase 1 of the digital account opening
+        enhancement project. The goal is to reduce account opening time
+        from 5-7 days to under 5 minutes for low-risk customers.
+--------------------------------------------------------------------------------
+
+DISCUSSION POINTS:
+
+1. [Sarah] Current process takes 5-7 working days because KYC checks are
+   done manually by the KYC team. Customer drop-off rate is 40% at the
+   ID document upload stage. We need to automate this.
+
+2. [David] We propose using the Onfido API for identity verification.
+   The customer uploads a photo of their passport or driving licence,
+   and takes a selfie. Onfido checks the document and matches it to
+   the selfie.
+
+3. [Emma] We need a real-time KYC check as well — PEPs, sanctions, and
+   adverse media screening. We can use a screening API that checks
+   against consolidated lists.
+
+4. [Sarah] We also need an automated credit reference check via Experian.
+   This is already in place for the current process, we just need to
+   integrate it into the new flow.
+
+5. [David] We'll build a risk scoring algorithm. Low-risk customers get
+   instant approval. Medium-risk go to semi-automated review by the
+   onboarding team. High-risk go to the compliance team for manual
+   review.
+
+6. [Sarah] What factors feed into the risk score?
+
+7. [David] We'll use the screening result (PEP hit, sanctions hit),
+   the credit score from Experian, and whether the ID verification
+   confidence score is above threshold. If any of these flag, the
+   customer goes to manual review.
+
+8. [Emma] We need to comply with FCA Consumer Duty regulations. The
+   process should be accessible — we need WCAG 2.1 AA compliance for
+   the app.
+
+9. [James] GDPR compliance is required for customer data storage.
+   We should retain data for no more than 6 months after the customer
+   relationship ends. Actually, let me check — Emma, what's the AML
+   retention requirement?
+
+10. [Emma] Good point. MLR 2017 requires 5 years post-relationship
+    retention for CDD records. So our retention policy should be 5
+    years, not 6 months. The 6 months I mentioned earlier was for
+    marketing data, not CDD data.
+
+11. [David] The system needs to integrate with our existing CRM
+    (Salesforce) and the core banking system for account creation.
+
+12. [Sarah] Performance requirement: 99.9% uptime during business hours.
+    The system should handle 10,000 concurrent applications.
+
+13. [David] Risk: Third-party API dependency. If Onfido goes down, we
+    need a fallback mechanism. Maybe queue the application and process
+    when the API is back.
+
+14. [Sarah] Decision: MVP will launch with automated KYC for UK
+    residents only. Non-UK residents will continue to use the branch
+    process for now.
+
+15. [James] Action item: I'll draft user stories by 22nd March.
+
+16. [Sarah] Assumption: Customers have a smartphone with a camera. We'll
+    offer a web fallback but the optimised experience is mobile.
+
+17. [Sarah] Constraint: Budget capped at £150k for Phase 1.
+
+18. [Emma] Regulatory requirement: We must maintain an audit trail for
+    all KYC decisions. Every automated decision needs to be logged
+    with the timestamp, the input data, and the decision rationale.
+
+19. [David] For low-risk customers, the system will create the account
+    automatically in the core banking system and issue a virtual debit
+    card immediately. Physical card within 2 working days.
+
+20. [James] What about ongoing monitoring after the account is opened?
+
+21. [Emma] That's handled by the existing transaction monitoring system
+    in the compliance team. It's out of scope for this project — we're
+    just doing the onboarding flow.
+
+22. [Sarah] What about customers who can't complete the digital flow?
+    We should have a branch fallback.
+
+23. [David] Yes, customers who fail digital onboarding can visit a
+    branch and complete the process manually. The branch staff have
+    access to the same screening tools.
+
+24. [Emma] We should also make sure that if a customer is rejected,
+    we log the reason and keep the record for the retention period.
+
+25. [James] OK, I think I have enough to draft the requirements. Let me
+    summarise the key points:
+    - Automated identity verification via Onfido (photo ID + selfie)
+    - Real-time PEP and sanctions screening
+    - Automated credit reference check via Experian
+    - Risk scoring (low/medium/high) with different processing paths
+    - Automated account creation and virtual card issuance for low-risk
+    - Integration with Salesforce and core banking system
+    - WCAG 2.1 AA accessibility compliance
+    - 5-year data retention policy (AML requirement)
+    - Full audit trail for all KYC decisions
+    - Branch fallback for customers who can't complete digital flow
+    - UK residents only for MVP
+
+26. [Sarah] That's a good summary. Let's circulate and review.
+
+[Meeting ends]

@@ -1,0 +1,453 @@
+REVERSE TEST BRD — Comprehensive Digital Account Opening (All Obligations Covered)
+================================================================================
+
+This is a deliberately comprehensive BRD designed to cover ALL 36 compliance
+obligations in the checklist. It is used for reverse testing: the tool should
+report ZERO gaps when run against this document.
+
+Project: Digital Account Opening Enhancement
+Client: UK Retail Bank
+Document Type: Business Requirements Document (BRD)
+Version: 1.0 (Reverse Test)
+
+-------------------------------------------------------------------------------
+
+1. PROJECT OVERVIEW
+
+The bank is enhancing its digital (non-face-to-face) account opening process
+for individual retail customers. The goal is to reduce onboarding time from
+5-7 days to under 5 minutes while maintaining full FCA/MLR compliance.
+
+The target market is UK resident individual customers opening a personal
+current account or savings account.
+
+-------------------------------------------------------------------------------
+
+2. CUSTOMER IDENTIFICATION & VERIFICATION (CDD CORE)
+
+2.1 Identity Collection and Verification
+The system shall collect the customer's full legal name, date of birth, and
+government-issued ID number (passport or driving licence number) during the
+application process.
+
+Identity verification shall be performed against an independent source. The
+system shall use a certified digital identity verification provider (Onfido)
+that cross-references the customer's submitted identity document against
+credit bureau data, electoral roll, and other independent data sources. The
+provider is certified under the UK Digital Identity Trust Framework and
+complies with MLR 2017 Reg 28(19) standards for electronic identification
+processes (anti-fraud, anti-abuse, sufficient assurance).
+
+2.2 Biometric Liveness Detection
+The system shall require a biometric selfie (liveness detection) as part of
+identity verification, not just a static photo of an ID document. The
+Onfido liveness check uses facial matching between the selfie and the ID
+document photo, with active liveness challenges to prevent spoofing.
+
+2.3 Address Verification
+The system shall collect the customer's residential address (not just a
+mailing address). Address verification shall be performed by cross-referencing
+against credit bureau data and electoral roll. If credit bureau verification
+is unavailable, the system shall request a utility bill or bank statement
+dated within the last 3 months, with automated name and address matching.
+
+2.4 Date of Birth in Verification
+The customer's date of birth shall be collected and used as part of the
+identity verification process — cross-referenced against the date of birth
+on the presented ID document and against credit bureau data.
+
+2.5 Purpose and Nature of Relationship
+The system shall collect information on the purpose of the account and the
+expected nature of the relationship. This includes:
+- Expected account usage (everyday spending, savings, salary deposit)
+- Expected monthly transaction volume range (e.g., under £1,000, £1,000-£5,000, over £5,000)
+- Expected initial deposit amount and source
+- Employment status and occupation
+
+This information shall be used for CDD risk assessment, not just marketing.
+
+2.6 CDD Failure Handling
+If CDD verification cannot be satisfactorily completed (document unreadable,
+data mismatch, provider downtime with no fallback), the system shall NOT
+open the account. The system shall:
+- Flag the application as "CDD incomplete"
+- Route to the compliance team for review
+- Consider whether the circumstances warrant filing a Suspicious Activity
+  Report (SAR) with the NCA
+- Notify the customer that their application cannot be completed
+
+The system shall never allow an account to be opened without successful CDD
+completion.
+
+-------------------------------------------------------------------------------
+
+3. RISK ASSESSMENT & RISK-BASED APPROACH
+
+3.1 Risk Scoring
+The system shall perform a risk assessment at onboarding and assign each
+customer a risk rating of Low, Medium, or High. The risk score shall be
+calculated using a multi-factor model that considers at least the following
+categories:
+
+(a) Customer risk factors:
+    - Residency status (UK resident, non-UK resident, student visa holder)
+    - PEP status (from PEP screening)
+    - Occupation type (cash-intensive, regulated profession, etc.)
+
+(b) Product/service risk factors:
+    - Account type (current account, savings account)
+    - Transaction limits (daily/monthly caps)
+    - International transfer capability
+
+(c) Geographical risk factors:
+    - Customer's country of residence
+    - Customer's country of birth
+    - Check against FATF high-risk third country lists (High-Risk
+      Jurisdictions subject to a Call for Action, and Jurisdictions under
+      Increased Monitoring)
+
+(d) Delivery channel risk factors:
+    - Non-face-to-face (digital) channel — inherent higher risk
+
+3.2 Risk-Based Processing Paths
+The system shall apply different CDD measures proportionate to the risk level:
+
+- Low risk: Simplified CDD path — automated approval with standard identity
+  verification. Fewer manual checks. Instant account opening where possible.
+- Medium risk: Standard CDD path — automated verification with random
+  sampling for manual review. Standard onboarding timeline.
+- High risk: Enhanced CDD (EDD) path — mandatory manual review by compliance
+  team. EDD measures (see Section 4) must be completed before account opening.
+
+All customers, regardless of risk level, must complete baseline CDD
+(identity verification, address verification, sanctions/PEP screening).
+
+-------------------------------------------------------------------------------
+
+4. ENHANCED DUE DILIGENCE (EDD)
+
+4.1 Non-Face-to-Face Risk Safeguards (C1)
+Because this is a purely digital (non-face-to-face) onboarding process with
+no step involving real-time human interaction between the customer and a
+firm representative, the system shall apply compensating safeguards:
+- Biometric liveness detection (selfie matching with active liveness
+  challenges) — not just a photo of an ID
+- Multi-source cross-referencing: identity verified against document +
+  credit bureau + electoral roll (minimum 2 independent sources)
+- The digital identity service provider (Onfido) is certified under the UK
+  Digital Identity Trust Framework and meets MLR 2017 Reg 28(19) standards
+- Supplementary verification step: micro-deposit verification to a linked
+  existing UK bank account (for customers who pass initial checks but have
+  a marginal risk score)
+
+4.2 PEP EDD (C2)
+When PEP screening (see Section 5.2) identifies a customer as a PEP, family
+member of a PEP, or known close associate of a PEP, the system shall apply
+EDD measures:
+- Senior management approval: The application shall be routed to a senior
+  compliance manager for explicit approval before the account is opened.
+  The system shall record who approved, when, and the basis for approval.
+- Source of wealth and source of funds verification: The system shall
+  require evidence of the customer's source of wealth (e.g., payslips, tax
+  returns, business financials, sale documents) and source of funds for the
+  initial deposit.
+- Enhanced ongoing monitoring: The account shall be flagged for enhanced
+  transaction monitoring with lower alert thresholds and monthly review.
+
+4.3 High-Risk Country EDD (C3)
+The system shall check the customer's country of residence and country of
+birth against FATF high-risk third country lists. If the customer is
+established in or has significant nexus to a high-risk country, EDD shall
+be applied:
+- Additional information on the customer and beneficial owner
+- Additional information on the intended nature of the relationship
+- Information on the source of funds and source of wealth
+- Information on the reasons for the expected transactions
+- Senior management approval
+- Enhanced ongoing monitoring
+
+4.4 Application-Stage Anomalous Activity Detection (C4)
+The system shall capture the customer's expected transaction volume and
+initial deposit amount during the application. If the declared amount is
+unusually high for this product type (exceeding pre-defined thresholds,
+e.g., initial deposit over £50,000 or expected monthly volume over
+£20,000), the system shall:
+- Flag the application for additional review before the account is opened
+- Require EDD measures: examining the background and purpose of the
+  expected transactions
+- Increase the degree and nature of monitoring for the relationship
+This applies to application-stage declarations only. Post-onboarding
+transaction monitoring is described in Section 6.
+
+4.5 False/Stolen ID Handling (C5)
+If the identity verification provider detects that a customer has provided
+false or stolen identification documentation, the system shall:
+- Flag the application as "fraud suspected"
+- Block the account opening
+- Route to the fraud/compliance team for investigation
+- Consider filing a SAR with the NCA
+- If the firm decides to continue dealing with the customer (rare), EDD
+  measures shall be applied
+
+4.6 General EDD Framework (C6)
+When ANY EDD trigger is activated (C1-C5) OR the risk assessment rates the
+customer as high risk, the system shall apply the standard EDD package:
+- Senior management approval for establishing the business relationship
+- Verification of source of wealth and source of funds
+- Enhanced ongoing monitoring of the relationship
+This EDD package is in addition to any trigger-specific measures.
+
+-------------------------------------------------------------------------------
+
+5. PEP & SANCTIONS SCREENING
+
+5.1 Sanctions Screening at Onboarding (D1)
+The system shall screen every customer against relevant sanctions lists at
+the time of onboarding, before the account is opened. The screening shall
+cover:
+- OFSI (UK Office of Financial Sanctions Implementation) Consolidated List
+- UN Security Council Consolidated List
+- EU Financial Sanctions List (retained in UK law post-Brexit)
+
+Screening shall be performed in real-time as part of the onboarding flow.
+
+5.2 PEP Screening at Onboarding (D2)
+The system shall screen every customer to determine whether they are:
+- A PEP (Politically Exposed Person)
+- A family member of a PEP (spouse, children, parents)
+- A known close associate of a PEP
+
+PEP screening shall use a commercial PEP database (e.g., World-Check,
+Refinitiv) and shall be performed at onboarding.
+
+5.3 Positive Match Escalation (D3)
+When a sanctions or PEP screening returns a positive match or a potential
+match requiring investigation, the system shall:
+- Automatically block the account opening
+- Route the case to the compliance team / MLRO for review
+- Provide the MLRO with decision options:
+  (a) Reject the application
+  (b) Proceed with EDD (if PEP match confirmed and approved by senior
+      management)
+  (c) File a SAR with the NCA
+- The MLRO decision shall be recorded with timestamp, reviewer identity,
+  and rationale
+- The target resolution timeframe is 24-48 hours
+
+5.4 Domestic PEP Treatment (D4)
+The system shall distinguish between domestic (UK) PEPs and foreign PEPs
+in its risk model. Domestic PEPs may be assigned a lower risk rating than
+foreign PEPs, but EDD shall still be applied to all PEPs regardless of
+type. No PEP (domestic or foreign) shall be exempt from EDD.
+
+-------------------------------------------------------------------------------
+
+6. SOURCE OF FUNDS & SOURCE OF WEALTH
+
+6.1 Source of Funds Collection (E1)
+The system shall collect source of funds (SOF) information from all
+customers during onboarding:
+- Declared employment status and salary range
+- Declared source of initial deposit (salary, savings, transfer from
+  another account, inheritance, etc.)
+- For initial deposits above £5,000, the system shall require documentation
+  (e.g., recent payslip, bank statement showing the source account)
+
+6.2 Source of Wealth Verification for EDD (E2)
+For customers who trigger EDD (PEP, high-risk country, high-risk rating,
+etc.), the system shall verify (not just collect) the source of wealth
+(SOW). SOW verification requires evidence of how the customer acquired
+their total wealth:
+- Payslips (for employment income)
+- Tax returns (for self-employed or complex income)
+- Sale documents (for property or asset sales)
+- Business financials (for business owners)
+- Inheritance documentation (for inherited wealth)
+
+6.3 Evidence Requirements (E3)
+SOF/SOW verification for EDD cases shall use independent evidence, not
+merely the customer's self-declaration. Acceptable evidence types:
+- Payslips (last 3 months)
+- Bank statements (from the source account, last 3 months)
+- Tax returns (most recent SA302 or equivalent)
+- Sale agreements (for property/asset sales)
+- Business financials (audited accounts for business owners)
+- Inheritance grant or probate documents
+
+The system shall store the evidence documents and link them to the
+customer's CDD record.
+
+-------------------------------------------------------------------------------
+
+7. ONGOING MONITORING
+
+7.1 Transaction Monitoring (F1)
+The system shall conduct ongoing monitoring of the business relationship
+throughout its duration:
+- Scrutinising transactions to ensure they are consistent with the firm's
+  knowledge of the customer, their business, and their risk profile
+- Transaction monitoring rules shall flag: unusual transaction amounts,
+  unusual transaction patterns, sudden changes in activity, transactions
+  inconsistent with the declared purpose of the account
+- Flagged transactions shall be reviewed by the compliance team and
+  escalated if suspicious
+- CDD documents and information shall be kept up to date — the system
+  shall prompt customers to update their information periodically
+
+7.2 Risk Rating Refresh (F2)
+The system shall periodically refresh the customer's risk rating:
+- High-risk customers: annual risk rating review
+- Medium-risk customers: biennial review
+- Low-risk customers: triennial review
+- Event-triggered risk re-assessment shall occur when:
+  (a) A sanctions list update occurs (see F3)
+  (b) A transaction alert fires
+  (c) The customer's PEP status changes
+  (d) The customer's transaction pattern deviates significantly from
+      declared expectations
+
+7.3 Ongoing Sanctions/PEP Rescreening (F3)
+The system shall re-screen existing customers against updated sanctions
+and PEP lists. A one-time screening at onboarding is insufficient.
+- Daily batch screening of all customers against updated OFSI, UN, and EU
+  sanctions lists
+- Daily batch screening against updated PEP database
+- If a match is found during rescreening, the case shall be escalated to
+  the compliance team / MLRO following the same process as at-onboarding
+  matches (D3)
+- The system shall log all rescreening runs and results
+
+7.4 SAR Escalation Process (F4)
+The system shall have a clear SAR escalation path:
+- Transaction monitoring alert → compliance team review → MLRO decision
+- The MLRO shall decide whether to file a SAR with the NCA
+- The system shall support SAR filing by providing a case file with all
+  relevant transaction data, customer information, and alert history
+- SAR filings shall be logged and retained
+
+-------------------------------------------------------------------------------
+
+8. RECORD KEEPING
+
+8.1 CDD Record Retention (G1)
+The system shall retain all CDD records, including identity verification
+evidence (ID document images, verification results, screening results),
+for at least 5 years after the end of the business relationship.
+
+8.2 Transaction Record Retention (G2)
+Transaction records shall be retained for at least 5 years from the date
+of each transaction. This is handled by the core banking system, which is
+configured for a 7-year retention period (exceeding the 5-year minimum).
+
+8.3 KYC Audit Trail (G3)
+The system shall maintain a complete audit trail of all KYC decisions:
+- Automated decisions (approve/reject/escalate) shall be logged with
+  timestamp, decision rationale, and the system component that made the
+  decision
+- Manual review decisions shall be logged with reviewer identity,
+  timestamp, and rationale
+- Underlying verification results (ID check score, sanctions screening
+  result, PEP screening result, risk score) shall be stored and linked
+  to the decision
+- The audit trail shall be immutable (append-only, no deletion or
+  modification of historical records)
+
+-------------------------------------------------------------------------------
+
+9. DATA PROTECTION (UK GDPR)
+
+9.1 Lawful Basis (H1)
+The firm's lawful basis for processing personal data during CDD/AML is
+"legal obligation" under Article 6(1)(c) UK GDPR (compliance with MLR 2017).
+For biometric data (selfie/liveness detection), which is special category
+data under Article 9, the firm relies on the substantial public interest
+condition for AML purposes (Article 9(2)(g) + DPA 2018 Schedule 1 Part 2).
+The BRD references the firm's Records of Processing Activities (ROPA)
+and Article 30 documentation.
+
+9.2 Data Minimisation (H2)
+The system shall collect only personal data that is adequate, relevant, and
+limited to what is necessary for CDD/AML compliance and account operation.
+- No social media profiles shall be collected
+- Employment history shall be limited to current employment status and
+  occupation (not full CV)
+- Biometric data (selfie) shall be used solely for identity verification
+  and deleted after verification is complete (template only retained)
+- Data fields shall be mapped to specific CDD/AML requirements
+
+9.3 Data Retention Schedule (H3)
+The system shall have a defined data retention schedule:
+- CDD data: retained for 5 years after the end of the business relationship
+  (per MLR 2017 Reg 40)
+- After the retention period, data shall be deleted or anonymised
+- The system shall have an automated deletion/anonymisation job that runs
+  on the retention expiry date
+- No data shall be retained indefinitely without a valid legal basis
+
+9.4 Data Subject Rights (H4)
+The system shall support data subject rights requests:
+- Article 15 (access): The system shall be able to export all data held
+  about a customer in a portable format
+- Article 17 (erasure): The system shall support deletion of customer data
+  when legally permissible (subject to the AML retention exception — data
+  cannot be deleted within the 5-year retention period)
+- The BRD references the firm's existing DSAR (Data Subject Access Request)
+  process and confirms that the onboarding system integrates with it
+
+-------------------------------------------------------------------------------
+
+10. FCA CONSUMER DUTY
+
+10.1 Fair Value Assessment (I1)
+The BRD references the fair value assessment (FVA) for the current account
+product, conducted under FCA Consumer Duty (PRIN 2A). The FVA confirms
+that fees, charges, and non-price costs (including time to open, complexity
+of onboarding) are proportionate for the target market.
+
+10.2 Avoiding Foreseeable Harm (I2)
+The system shall include measures to avoid foreseeable harm to customers
+in the onboarding process:
+- Accessibility: The digital onboarding interface shall comply with WCAG
+  2.1 AA standards, supporting screen readers, keyboard navigation, and
+  sufficient colour contrast
+- Fallback process: Customers who cannot complete digital onboarding
+  (e.g., no smartphone, accessibility barriers) shall be offered a branch
+  or telephone alternative
+- Incorrect rejection review: Customers whose application is rejected by
+  the automated system shall have the right to request manual review, and
+  the system shall support this review workflow
+- Drop-off monitoring: The system shall monitor drop-off rates at each
+  step of the onboarding process and alert the product team if drop-off
+  exceeds expected thresholds
+
+10.3 Clear Communications (I3)
+Customer communications during onboarding shall be clear, fair, and not
+misleading:
+- Welcome messages, decision notifications, and rejection reasons shall
+  use plain language (Flesch reading ease score target: 60+)
+- Communications shall be consumer-tested with a sample of the target
+  market before deployment
+- Rejection communications shall explain the reason in non-technical
+  language and inform the customer of their right to manual review
+- The system shall support multiple communication channels (email, SMS,
+  in-app) and allow the customer to choose their preferred channel
+
+-------------------------------------------------------------------------------
+
+11. SCOPE EXCLUSIONS
+
+This BRD covers the account opening process for individual retail customers
+via the digital channel only. The following are explicitly out of scope:
+- Corporate/business account opening
+- Joint accounts (will be addressed in Phase 2)
+- Account closure process (handled by existing systems)
+
+Note: Ongoing monitoring (Section 7) is included in this BRD because the
+onboarding system design must support data structures and flags that feed
+into the ongoing monitoring system. However, the detailed transaction
+monitoring rules engine is specified in a separate document
+(Transaction Monitoring System Specification v2.0).
+
+-------------------------------------------------------------------------------
+
+END OF REVERSE TEST BRD

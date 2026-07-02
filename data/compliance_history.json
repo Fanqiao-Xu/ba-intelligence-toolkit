@@ -1,0 +1,11 @@
+[
+  {
+    "timestamp": "2026-07-02T19:41:11.712053+00:00",
+    "version_label": "v1.0-draft",
+    "total": 36,
+    "satisfied": 14,
+    "gaps": 18,
+    "unclear": 2,
+    "high_risk_gaps": 9
+  }
+]
