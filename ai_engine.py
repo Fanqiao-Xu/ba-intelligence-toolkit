@@ -17,8 +17,13 @@ try:
     import streamlit as st
     if hasattr(st, "secrets") and st.secrets:
         for key in ("LLM_API_KEY", "LLM_BASE_URL", "LLM_MODEL"):
-            if key in st.secrets and key not in os.environ:
-                os.environ[key] = st.secrets[key]
+            try:
+                if key not in os.environ:
+                    value = st.secrets.get(key)
+                    if value:
+                        os.environ[key] = str(value)
+            except Exception:
+                pass
 except (ImportError, AttributeError, Exception):
     pass
 

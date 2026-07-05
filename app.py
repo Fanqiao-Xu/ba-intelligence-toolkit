@@ -838,14 +838,32 @@ st.sidebar.markdown('<div class="sidebar-label">Configuration</div>', unsafe_all
 
 # Provider selection
 # ---------------------------------------------------------------------------
-# Detect if API key is already configured via Streamlit Cloud Secrets
+# Detect if API key is already configured via Streamlit Cloud Secrets / .env
 # ---------------------------------------------------------------------------
-_cloud_key_configured = bool(os.getenv("LLM_API_KEY"))
-_cloud_model = os.getenv("LLM_MODEL", "")
-_cloud_base_url = os.getenv("LLM_BASE_URL", "")
+def _get_configured_key():
+    """Return a configured API key if available, otherwise None."""
+    # Try os.environ first (set by .env or ai_engine.py reading st.secrets)
+    key = os.getenv("LLM_API_KEY") or os.getenv("OPENAI_API_KEY")
+    if key:
+        return key
+    # Fall back to st.secrets directly if not yet in os.environ
+    try:
+        if hasattr(st, "secrets") and st.secrets:
+            key = st.secrets.get("LLM_API_KEY")
+            if key:
+                os.environ["LLM_API_KEY"] = str(key)
+                return str(key)
+    except Exception:
+        pass
+    return None
 
-if _cloud_key_configured:
-    # --- Cloud Secrets mode: key already available, no input needed ---
+
+_cloud_key = _get_configured_key()
+_cloud_model = os.getenv("LLM_MODEL") or st.secrets.get("LLM_MODEL", "deepseek-chat") if hasattr(st, "secrets") else "deepseek-chat"
+_cloud_base_url = os.getenv("LLM_BASE_URL") or st.secrets.get("LLM_BASE_URL", "") if hasattr(st, "secrets") else ""
+
+if _cloud_key:
+    # --- Cloud Secrets / .env mode: key already available, no input needed ---
     st.sidebar.markdown(
         '<div style="'
         'font-size:0.7rem;text-transform:uppercase;letter-spacing:0.15em;'
@@ -867,7 +885,7 @@ if _cloud_key_configured:
             model = _cloud_model or "deepseek-chat"
             base_url = _cloud_base_url or None
             st.session_state.engine = AIEngine(
-                api_key=os.environ["LLM_API_KEY"],
+                api_key=_cloud_key,
                 model=model,
                 base_url=base_url,
             )
