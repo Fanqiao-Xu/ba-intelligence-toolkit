@@ -848,11 +848,24 @@ def _get_configured_key():
         return key
     # Fall back to st.secrets directly if not yet in os.environ
     try:
-        if hasattr(st, "secrets") and st.secrets:
-            key = st.secrets.get("LLM_API_KEY")
-            if key:
-                os.environ["LLM_API_KEY"] = str(key)
-                return str(key)
+        if hasattr(st, "secrets"):
+            # Try dict-style access first (most reliable on Cloud)
+            try:
+                if "LLM_API_KEY" in st.secrets:
+                    key = st.secrets["LLM_API_KEY"]
+                    if key:
+                        os.environ["LLM_API_KEY"] = str(key)
+                        return str(key)
+            except Exception:
+                pass
+            # Try .get() as fallback
+            try:
+                key = st.secrets.get("LLM_API_KEY")
+                if key:
+                    os.environ["LLM_API_KEY"] = str(key)
+                    return str(key)
+            except Exception:
+                pass
     except Exception:
         pass
     return None
@@ -861,8 +874,16 @@ def _get_configured_key():
 def _get_secret(key: str, default: str | None = None):
     """Safely read a secret, never letting Streamlit parse errors propagate."""
     try:
-        if hasattr(st, "secrets") and st.secrets:
-            return st.secrets.get(key, default)
+        if hasattr(st, "secrets"):
+            try:
+                if key in st.secrets:
+                    return st.secrets[key]
+            except Exception:
+                pass
+            try:
+                return st.secrets.get(key, default)
+            except Exception:
+                pass
     except Exception:
         pass
     return default
