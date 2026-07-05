@@ -842,14 +842,16 @@ st.sidebar.markdown('<div class="sidebar-label">Configuration</div>', unsafe_all
 # ---------------------------------------------------------------------------
 def _get_configured_key():
     """Return a configured API key if available, otherwise None."""
-    # Try os.environ first (set by .env or ai_engine.py reading st.secrets)
-    key = os.getenv("LLM_API_KEY") or os.getenv("OPENAI_API_KEY")
-    if key:
-        return key
-    # Fall back to st.secrets directly if not yet in os.environ
+    # Streamlit Cloud: st.secrets is already populated at import time
     try:
         if hasattr(st, "secrets"):
-            # Try dict-style access first (most reliable on Cloud)
+            try:
+                key = st.secrets["LLM_API_KEY"]
+                if key:
+                    os.environ["LLM_API_KEY"] = str(key)
+                    return str(key)
+            except Exception:
+                pass
             try:
                 if "LLM_API_KEY" in st.secrets:
                     key = st.secrets["LLM_API_KEY"]
@@ -858,16 +860,12 @@ def _get_configured_key():
                         return str(key)
             except Exception:
                 pass
-            # Try .get() as fallback
-            try:
-                key = st.secrets.get("LLM_API_KEY")
-                if key:
-                    os.environ["LLM_API_KEY"] = str(key)
-                    return str(key)
-            except Exception:
-                pass
     except Exception:
         pass
+    # Fallback to os.environ (set by .env or ai_engine.py)
+    key = os.getenv("LLM_API_KEY") or os.getenv("OPENAI_API_KEY")
+    if key:
+        return key
     return None
 
 
@@ -876,12 +874,12 @@ def _get_secret(key: str, default: str | None = None):
     try:
         if hasattr(st, "secrets"):
             try:
-                if key in st.secrets:
-                    return st.secrets[key]
+                return st.secrets[key]
             except Exception:
                 pass
             try:
-                return st.secrets.get(key, default)
+                if key in st.secrets:
+                    return st.secrets[key]
             except Exception:
                 pass
     except Exception:

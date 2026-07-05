@@ -15,15 +15,23 @@ load_dotenv()
 # so that the OpenAI client picks up LLM_API_KEY/LLM_BASE_URL automatically.
 try:
     import streamlit as st
-    if hasattr(st, "secrets") and st.secrets:
+    if hasattr(st, "secrets"):
         for key in ("LLM_API_KEY", "LLM_BASE_URL", "LLM_MODEL"):
-            try:
-                if key not in os.environ:
+            if key not in os.environ:
+                try:
+                    # Try dict-style access first; .get() can fail on Cloud
+                    value = st.secrets[key]
+                    if value:
+                        os.environ[key] = str(value)
+                        continue
+                except Exception:
+                    pass
+                try:
                     value = st.secrets.get(key)
                     if value:
                         os.environ[key] = str(value)
-            except Exception:
-                pass
+                except Exception:
+                    pass
 except (ImportError, AttributeError, Exception):
     pass
 
