@@ -858,9 +858,19 @@ def _get_configured_key():
     return None
 
 
+def _get_secret(key: str, default: str | None = None):
+    """Safely read a secret, never letting Streamlit parse errors propagate."""
+    try:
+        if hasattr(st, "secrets") and st.secrets:
+            return st.secrets.get(key, default)
+    except Exception:
+        pass
+    return default
+
+
 _cloud_key = _get_configured_key()
-_cloud_model = os.getenv("LLM_MODEL") or st.secrets.get("LLM_MODEL", "deepseek-chat") if hasattr(st, "secrets") else "deepseek-chat"
-_cloud_base_url = os.getenv("LLM_BASE_URL") or st.secrets.get("LLM_BASE_URL", "") if hasattr(st, "secrets") else ""
+_cloud_model = os.getenv("LLM_MODEL") or _get_secret("LLM_MODEL", "deepseek-chat")
+_cloud_base_url = os.getenv("LLM_BASE_URL") or _get_secret("LLM_BASE_URL", "")
 
 if _cloud_key:
     # --- Cloud Secrets / .env mode: key already available, no input needed ---
