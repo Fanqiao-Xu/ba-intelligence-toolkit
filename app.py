@@ -891,6 +891,15 @@ _cloud_key = _get_configured_key()
 _cloud_model = os.getenv("LLM_MODEL") or _get_secret("LLM_MODEL", "deepseek-chat")
 _cloud_base_url = os.getenv("LLM_BASE_URL") or _get_secret("LLM_BASE_URL", "")
 
+# DEBUG: show what st.secrets contains (remove after fixing)
+_st_secrets_keys = []
+try:
+    if hasattr(st, "secrets"):
+        _st_secrets_keys = sorted(st.secrets.keys()) if hasattr(st.secrets, "keys") else list(st.secrets)
+except Exception:
+    _st_secrets_keys = ["ERROR reading secrets"]
+st.sidebar.caption(f"🔍 DEBUG — st.secrets keys: {_st_secrets_keys}")
+
 if _cloud_key:
     # --- Cloud Secrets / .env mode: key already available, no input needed ---
     st.sidebar.markdown(
