@@ -837,61 +837,39 @@ st.sidebar.markdown("---")
 st.sidebar.markdown('<div class="sidebar-label">Configuration</div>', unsafe_allow_html=True)
 
 # Provider selection
-provider = st.sidebar.radio(
-    "LLM Provider",
-    options=["DeepSeek", "OpenAI"],
-    index=0,
-    help="DeepSeek is much cheaper and works great for this use case.",
-    label_visibility="collapsed",
-)
+# ---------------------------------------------------------------------------
+# Detect if API key is already configured via Streamlit Cloud Secrets
+# ---------------------------------------------------------------------------
+_cloud_key_configured = bool(os.getenv("LLM_API_KEY"))
+_cloud_model = os.getenv("LLM_MODEL", "")
+_cloud_base_url = os.getenv("LLM_BASE_URL", "")
 
-# Set defaults based on provider
-if provider == "DeepSeek":
-    default_key = os.getenv("LLM_API_KEY", "")
-    default_url = "https://api.deepseek.com"
-    model_options = ["deepseek-chat", "deepseek-reasoner"]
-    default_model = "deepseek-chat"
-    key_label = "DeepSeek API Key"
-else:
-    default_key = os.getenv("LLM_API_KEY", os.getenv("OPENAI_API_KEY", ""))
-    default_url = ""
-    model_options = ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"]
-    default_model = "gpt-4o-mini"
-    key_label = "OpenAI API Key"
+if _cloud_key_configured:
+    # --- Cloud Secrets mode: key already available, no input needed ---
+    st.sidebar.markdown(
+        '<div style="'
+        'font-size:0.7rem;text-transform:uppercase;letter-spacing:0.15em;'
+        'color:#4A7C59;font-weight:500;margin-bottom:0.4rem;'
+        '">&#10003; API Key Configured</div>',
+        unsafe_allow_html=True,
+    )
+    st.sidebar.markdown(
+        '<p style="font-size:0.78rem;color:#6B6560;line-height:1.5;'
+        'margin-bottom:1rem;">'
+        'Engine ready via Cloud Secrets &mdash; no setup needed.'
+        '</p>',
+        unsafe_allow_html=True,
+    )
 
-# API key input (pre-filled from .env if available)
-api_key = st.sidebar.text_input(
-    key_label,
-    value=st.session_state.get("api_key_input", default_key),
-    type="password",
-    help=f"Your {provider} API key. Stored only in this session.",
-)
-if api_key:
-    st.session_state.api_key_input = api_key
-
-# Base URL (auto-set, but visible for transparency)
-if provider == "DeepSeek":
-    st.sidebar.text_input("Base URL", value=default_url, disabled=True)
-
-# Model selection
-model = st.sidebar.selectbox(
-    "Model",
-    options=model_options,
-    index=0,
-    help=f"{'deepseek-chat' if provider == 'DeepSeek' else 'gpt-4o-mini'} "
-         "is recommended for cost and speed.",
-)
-
-# Initialize engine
-if st.sidebar.button("Initialize AI Engine", type="primary"):
-    if not api_key:
-        st.sidebar.error(f"Please enter your {provider} API key.")
-    else:
+    # Auto-initialize engine if not already done
+    if st.session_state.engine is None:
         try:
+            model = _cloud_model or "deepseek-chat"
+            base_url = _cloud_base_url or None
             st.session_state.engine = AIEngine(
-                api_key=api_key,
+                api_key=os.environ["LLM_API_KEY"],
                 model=model,
-                base_url=default_url if provider == "DeepSeek" else None,
+                base_url=base_url,
             )
             st.session_state.extractor = RequirementsExtractor(
                 st.session_state.engine
@@ -901,9 +879,78 @@ if st.sidebar.button("Initialize AI Engine", type="primary"):
             )
             st.session_state.rtm_gen = RTMGenerator(st.session_state.engine)
             st.session_state.gap_analyzer = GapAnalyzer(st.session_state.engine)
-            st.sidebar.success(f"{provider} engine ready.")
         except Exception as e:
-            st.sidebar.error(f"Initialization failed: {e}")
+            st.sidebar.error(f"Auto-init failed: {e}")
+
+else:
+    # --- Manual mode: user provides their own key ---
+    provider = st.sidebar.radio(
+        "LLM Provider",
+        options=["DeepSeek", "OpenAI"],
+        index=0,
+        help="DeepSeek is much cheaper and works great for this use case.",
+        label_visibility="collapsed",
+    )
+
+    # Set defaults based on provider
+    if provider == "DeepSeek":
+        default_key = os.getenv("LLM_API_KEY", "")
+        default_url = "https://api.deepseek.com"
+        model_options = ["deepseek-chat", "deepseek-reasoner"]
+        default_model = "deepseek-chat"
+        key_label = "DeepSeek API Key"
+    else:
+        default_key = os.getenv("LLM_API_KEY", os.getenv("OPENAI_API_KEY", ""))
+        default_url = ""
+        model_options = ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"]
+        default_model = "gpt-4o-mini"
+        key_label = "OpenAI API Key"
+
+    # API key input (pre-filled from .env if available)
+    api_key = st.sidebar.text_input(
+        key_label,
+        value=st.session_state.get("api_key_input", default_key),
+        type="password",
+        help=f"Your {provider} API key. Stored only in this session.",
+    )
+    if api_key:
+        st.session_state.api_key_input = api_key
+
+    # Base URL (auto-set, but visible for transparency)
+    if provider == "DeepSeek":
+        st.sidebar.text_input("Base URL", value=default_url, disabled=True)
+
+    # Model selection
+    model = st.sidebar.selectbox(
+        "Model",
+        options=model_options,
+        index=0,
+        help=f"{'deepseek-chat' if provider == 'DeepSeek' else 'gpt-4o-mini'} "
+             "is recommended for cost and speed.",
+    )
+
+    # Initialize engine
+    if st.sidebar.button("Initialize AI Engine", type="primary"):
+        if not api_key:
+            st.sidebar.error(f"Please enter your {provider} API key.")
+        else:
+            try:
+                st.session_state.engine = AIEngine(
+                    api_key=api_key,
+                    model=model,
+                    base_url=default_url if provider == "DeepSeek" else None,
+                )
+                st.session_state.extractor = RequirementsExtractor(
+                    st.session_state.engine
+                )
+                st.session_state.checker = ComplianceGapChecker(
+                    st.session_state.engine, CHECKLIST_PATH
+                )
+                st.session_state.rtm_gen = RTMGenerator(st.session_state.engine)
+                st.session_state.gap_analyzer = GapAnalyzer(st.session_state.engine)
+                st.sidebar.success(f"{provider} engine ready.")
+            except Exception as e:
+                st.sidebar.error(f"Initialization failed: {e}")
 
 st.sidebar.markdown("---")
 
