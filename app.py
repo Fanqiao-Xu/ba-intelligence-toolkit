@@ -8,6 +8,7 @@ Run:  streamlit run app.py
 import json
 import os
 import sys
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -629,6 +630,154 @@ DATA_DIR = Path(__file__).parent / "data"
 CHECKLIST_PATH = DATA_DIR / "compliance_obligations.yaml"
 DEMO_RESULTS_PATH = DATA_DIR / "demo_results.json"
 COMPLIANCE_HISTORY_PATH = DATA_DIR / "compliance_history.json"
+VISITOR_LOG_PATH = DATA_DIR / "visitor_log.jsonl"
+
+# ---------------------------------------------------------------------------
+# Visitor logging (anonymous — no IP, no personal data)
+# ---------------------------------------------------------------------------
+def _log_visit(view_name: str):
+    """Append an anonymous page-view record to the visitor log."""
+    if "visitor_id" not in st.session_state:
+        st.session_state.visitor_id = str(uuid.uuid4())[:8]
+    entry = {
+        "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "sid": st.session_state.visitor_id,
+        "view": view_name,
+    }
+    try:
+        DATA_DIR.mkdir(exist_ok=True)
+        with open(VISITOR_LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\n")
+    except Exception:
+        pass  # logging must never break the app
+
+
+def _load_visitor_log() -> list[dict]:
+    """Read all visitor log entries."""
+    if not VISITOR_LOG_PATH.exists():
+        return []
+    entries = []
+    try:
+        with open(VISITOR_LOG_PATH, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        entries.append(json.loads(line))
+                    except json.JSONDecodeError:
+                        pass
+    except Exception:
+        pass
+    return entries
+
+
+def _render_admin_panel():
+    """Hidden admin view showing anonymous visitor analytics."""
+    st.markdown('<p class="module-label">Admin</p>', unsafe_allow_html=True)
+    st.markdown("## Visitor Analytics")
+
+    log = _load_visitor_log()
+
+    if not log:
+        st.markdown(
+            '<p style="color:#6B6560;font-size:0.9rem;">'
+            "No visitor data yet. Logs reset on each redeploy."
+            "</p>",
+            unsafe_allow_html=True,
+        )
+        st.markdown("---")
+        st.markdown(
+            '<p style="color:#9C9490;font-size:0.78rem;">'
+            "Logs are stored locally on the Streamlit Cloud container "
+            "and are anonymous (session ID + timestamp + module name only). "
+            "They will be cleared when the app redeploys or reboots."
+            "</p>",
+            unsafe_allow_html=True,
+        )
+        return
+
+    unique_visitors = len({e["sid"] for e in log})
+    total_views = len(log)
+
+    # Module breakdown
+    view_counts: dict[str, int] = {}
+    for e in log:
+        v = e.get("view", "?")
+        view_counts[v] = view_counts.get(v, 0) + 1
+
+    # Metrics
+    cols = st.columns(3)
+    with cols[0]:
+        _metric_block(total_views, "Total Page Views")
+    with cols[1]:
+        _metric_block(unique_visitors, "Unique Visitors")
+    with cols[2]:
+        first_visit = log[0]["ts"][:16].replace("T", " ")
+        _metric_block(first_visit, "First Visit (UTC)")
+
+    st.markdown("---")
+
+    # Module breakdown
+    st.markdown('<p class="module-label">Views by Module</p>', unsafe_allow_html=True)
+    for view, count in sorted(view_counts.items(), key=lambda x: -x[1]):
+        pct = count / total_views * 100
+        st.markdown(
+            f'<div style="display:flex;align-items:baseline;gap:1rem;'
+            f'margin-bottom:0.5rem;">'
+            f'<span style="font-size:0.9rem;color:#1A1A1A;">{view}</span>'
+            f'<span style="font-size:1.2rem;font-family:Georgia,serif;'
+            f'color:#3D2B1F;">{count}</span>'
+            f'<span style="font-size:0.78rem;color:#9C9490;">{pct:.0f}%</span>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("---")
+
+    # Recent visits table
+    st.markdown('<p class="module-label">Recent Visits</p>', unsafe_allow_html=True)
+    recent = log[-20:][::-1]  # last 20, newest first
+    rows_html = ""
+    for e in recent:
+        ts = e["ts"][:19].replace("T", " ")
+        rows_html += (
+            f'<tr>'
+            f'<td style="padding:0.4rem 0.8rem;font-size:0.82rem;color:#1A1A1A;'
+            f'border-bottom:1px solid #E5E0D8;">{ts}</td>'
+            f'<td style="padding:0.4rem 0.8rem;font-size:0.82rem;color:#6B6560;'
+            f'border-bottom:1px solid #E5E0D8;">{e["sid"]}</td>'
+            f'<td style="padding:0.4rem 0.8rem;font-size:0.82rem;color:#1A1A1A;'
+            f'border-bottom:1px solid #E5E0D8;">{e["view"]}</td>'
+            f'</tr>'
+        )
+    st.markdown(
+        f'<table style="width:100%;border-collapse:collapse;">'
+        f'<thead><tr>'
+        f'<th style="padding:0.4rem 0.8rem;text-align:left;font-size:0.7rem;'
+        f'text-transform:uppercase;letter-spacing:0.1em;color:#9C9490;'
+        f'border-bottom:1px solid #E5E0D8;">Timestamp (UTC)</th>'
+        f'<th style="padding:0.4rem 0.8rem;text-align:left;font-size:0.7rem;'
+        f'text-transform:uppercase;letter-spacing:0.1em;color:#9C9490;'
+        f'border-bottom:1px solid #E5E0D8;">Session</th>'
+        f'<th style="padding:0.4rem 0.8rem;text-align:left;font-size:0.7rem;'
+        f'text-transform:uppercase;letter-spacing:0.1em;color:#9C9490;'
+        f'border-bottom:1px solid #E5E0D8;">Module</th>'
+        f'</tr></thead>'
+        f'<tbody>{rows_html}</tbody>'
+        f'</table>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("---")
+    st.markdown(
+        '<p style="color:#9C9490;font-size:0.78rem;">'
+        "Logs are stored locally on the Streamlit Cloud container "
+        "and are anonymous (session ID + timestamp + module name only). "
+        "They will be cleared when the app redeploys or reboots."
+        "</p>",
+        unsafe_allow_html=True,
+    )
+
 
 # ---------------------------------------------------------------------------
 # Session state initialization
@@ -1046,6 +1195,19 @@ view = st.radio(
     label_visibility="collapsed",
 )
 st.session_state.current_view = view
+
+# ---------------------------------------------------------------------------
+# Hidden admin panel — visit ?admin=1 to view anonymous visitor analytics
+# ---------------------------------------------------------------------------
+_query_params = st.query_params
+if _query_params.get("admin") == "1":
+    _log_visit("Admin")
+    _render_admin_panel()
+    _render_footer()
+    st.stop()
+
+# Log this page view (anonymous)
+_log_visit(nav_labels[view])
 
 
 # ---------------------------------------------------------------------------

@@ -25,6 +25,7 @@ Thumbs.db
 # ── Internal design notes (not for public) ──
 data/demo_gap_design_notes.md
 data/reverse_test_results.json
+data/visitor_log.jsonl
 
 # ── Editor ───────────────────────────────────
 .vscode/
