@@ -56,6 +56,36 @@ each reasoning chain.
 Both are appropriate `absence-of-evidence` judgments rather than forced
 binary verdicts.
 
+## Designed-gap recall: 4/5 — the C1 miss and root cause
+
+Of the five deliberately planted gaps, four were caught (C4, E2, F3, A6).
+**C1 — non-face-to-face onboarding safeguards — was reported as satisfied.**
+
+This is a recorded false negative, documented here rather than quietly
+patched:
+
+- **What happened.** The test document describes Onfido document verification
+  with a selfie match, but never mentions liveness detection or multi-source
+  verification. The model inferred those safeguards from the vendor's name
+  and judged the compensating measures sufficient.
+- **Root cause.** One phrase in the compliance prompt: the rubric asked
+  whether the document addresses the obligation *"explicitly or implicitly"*
+  — the word "implicitly" gave the model licence to infer coverage. The fault
+  was in the prompt's judgment standard, not in the test document.
+- **Fix specification.** Tighten the rubric: only **explicitly stated**
+  coverage counts as satisfied; anything inferred routes to `unclear` and
+  human review — which is exactly what the fourth state exists for.
+- **Why the fix is not yet shipped.** With a non-deterministic system,
+  editing the prompt until one test case passes is overfitting to that test
+  case. The fix is to be delivered together with an evaluation set of test
+  documents, and is ranked first on the roadmap.
+
+Recording this miss alongside the 14 adjudicated extra findings keeps the
+public validation record complete: the reverse test (0 false positives), the
+forward-test recall (4/5, one documented miss), and the extra-findings
+adjudication (13 verified, 1 contestable) together describe what the tool
+actually does — not a curated subset of it.
+
 ## Interpretation
 
 **The two tests measure different things:**
